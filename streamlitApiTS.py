@@ -39,29 +39,3 @@ def interface():
 
 
 interface()
-
-# {"feeds": [{"created_at": "2023-05-17T18:46:16Z",
-#             "entry_id": 54,
-#             "field1": "8",
-#             "field2": None,
-#             "field3": None},
-#            {"created_at": "2023-05-17T18:46:39Z",
-#             "entry_id": 55,
-#             "field1": "3",
-#             "field2": None,
-#             "field3": None},
-#            {"created_at": "2023-05-17T18:47:00Z",
-#             "entry_id": 56,
-#             "field1": "0",
-#             "field2": None,
-#             "field3": None},
-#            {"created_at": "2023-05-17T19:23:24Z",
-#             "entry_id": 57,
-#             "field1": "4",
-#             "field2": None,
-#             "field3": None},
-#            {"created_at": "2023-06-28T23:53:01Z",
-#             "entry_id": 58,
-#             "field1": "0",
-#             "field2": None,
-#             "field3": None}]}
