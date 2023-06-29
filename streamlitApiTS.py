@@ -19,7 +19,12 @@ def interface():
 
     'teste escrita só em string'  # site escreve strings
 
-    n = int(sl.text_input('nº de últimos resultados'))
+    n = sl.text_input('nº de últimos resultados')
+
+    try:
+        n = int(n)
+    except:
+        'digite um número'
 
     if sl.button('consultar'):
 
