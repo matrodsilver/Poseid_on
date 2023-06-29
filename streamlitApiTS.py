@@ -2,18 +2,21 @@ import requests
 import streamlit as sl
 
 
-def selecionarUsuarios(n):
+def pegarValores(n):
 
-    url = f"https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}"
+    url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
 
     resposta = requests.get(url)
     if resposta.status_code == 200:
         return resposta.json()
     else:
-        print("Erro na requisição")
+        print('Erro na requisição')
 
 
 def interface():
+
+    max = pegarValores(0)["channel"]["last_entry_id"]
+
     # sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">')
     sl.title('consulta dados TS')
 
@@ -23,12 +26,20 @@ def interface():
 
     try:
         n = int(n)
+
+        if n > max:
+            raise Exception('número grande demais')
+
+        inteiro = True
+        dados = pegarValores(n)
+
     except:
-        'digite um número'
+        f'digite um número de 0 a {max}'
 
-    if sl.button('consultar'):
+        inteiro = False
 
-        dados = selecionarUsuarios(n)
+    # teste condicional de funcionamento
+    if sl.button('consultar') and inteiro == True and (0 < n <= dados['channel']['last_entry_id']):
 
         if dados is not None:
 
