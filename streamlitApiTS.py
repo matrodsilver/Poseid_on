@@ -14,8 +14,8 @@ def pegarValores(n):
 
 
 def interface():
-
-    max = pegarValores(0)["channel"]["last_entry_id"]
+    ## Teste Site ##
+    max = pegarValores(0)['channel']['last_entry_id']
 
     # sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">')
     sl.title('consulta dados TS')
@@ -27,14 +27,14 @@ def interface():
     try:
         n = int(n)
 
-        if n > max:
-            raise Exception('número grande demais')
+        if n > max or n < 1:
+            raise Exception('número fora de alcance')
 
         inteiro = True
         dados = pegarValores(n)
 
     except:
-        f'digite um número de 0 a {max}'
+        f'digite um número de 1 a {max}'
 
         inteiro = False
 
@@ -51,7 +51,27 @@ def interface():
             sl.line_chart(bd)
             sl.write(bd)
 
-            sl.write(dados)
+            # sl.write(dados)
+
+    ## Teste Clima##
+    token = '4127401294a510735af86031ebc9697b'
+
+    cidade = sl.text_input('digite uma cidade')
+    codigoDoPais = 'BR'
+
+    url5 = f'https://api.openweathermap.org/data/2.5/forecast?q={cidade},{codigoDoPais}&appid={token}&units=metric&lang={"pt_br"}'
+
+    req = requests.get(url5)
+
+    if sl.button('clima'):
+        if req.status_code == 200:
+
+            info = req.json()
+
+            sl.write(info)
+        else:
+            'erro'
+            sl.write(req)
 
 
 interface()
