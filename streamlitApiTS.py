@@ -89,7 +89,7 @@ def interface():
                 else:
                     sl.write(f'--{hora}--')
 
-                sl.write(f'tempo {tempo["main"]} - {tempo["description"]}')
+                sl.write(f'tempo: {tempo["main"]} - {tempo["description"]}')
                 sl.write(f'Vento: {vento["speed"]} - {vento["deg"]}º\n')
 
                 # sl.write(info)
