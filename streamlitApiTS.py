@@ -49,7 +49,7 @@ def interface():
                 bd.append(int(dados['feeds'][numero]['field1']))
 
             sl.line_chart(bd)
-            sl.write(bd)
+            sl.table(bd)
 
             # sl.write(dados)
 
