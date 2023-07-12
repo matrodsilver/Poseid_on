@@ -68,10 +68,44 @@ def interface():
 
             info = req.json()
 
-            sl.write(info)
+            ultimoDia = 0
+
+            for n in range(0, len(info['list'])):
+                tempo = info['list'][n]['weather'][0]
+                vento = info['list'][n]['wind']
+                data = info["list"][n]["dt_txt"]
+
+                dia = data[8:10]
+                mes = data[5:7]
+                ano = data[0:4]
+                hora = data[11:16]
+
+                if dia != ultimoDia:
+                    # dois espaços no final da linha fazem o mesmo que '\n' no streamlit
+                    sl.write(f'''__ __{dia}/{mes}/{ano}__ __  
+                             --{hora}--''')
+
+                    ultimoDia = dia
+                else:
+                    sl.write(f'--{hora}--')
+
+                sl.write(f'tempo {tempo["main"]} - {tempo["description"]}')
+                sl.write(f'Vento: {vento["speed"]} - {vento["deg"]}º\n')
+
+                # sl.write(info)
         else:
             'erro'
             sl.write(req)
 
 
 interface()
+
+'''
+informações relevantes:
+weather
+wind
+dt_txt
+pop
+rain
+city
+'''
