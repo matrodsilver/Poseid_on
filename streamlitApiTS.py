@@ -1,3 +1,5 @@
+'''Código igual mas esse texto adicionado pra testar branches do GIT'''
+
 import requests
 import streamlit as sl
 
