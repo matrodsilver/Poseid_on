@@ -1,9 +1,6 @@
 import requests
 import streamlit as sl
 
-with open ("style.css") as f:
-    sl.markdown(f"<styles>{f.read()}</styles>",unsafe_allow_html=True)
-
 def pegarValores(n):
 
     url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
