@@ -20,7 +20,7 @@ tadashi = 'x'
 usuarios = [eu]
 
 while True:
-    if int(pegarValores()['feeds'][0]['field1']) > 0:
+    if int(pegarValores()['feeds'][0]['field1']) > 1:
         print('sin')
         for usuario in usuarios:
             pbt = Pushbullet(usuario)
