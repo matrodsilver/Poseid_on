@@ -49,7 +49,7 @@ if paginaSelecionada == 'Verificação':
 
                 tabGrafico, tabDados = sl.tabs(["Gráfico","Dados"])
                 for numero in range(0, n):
-                    if type(int(dados['feeds'][numero]['field2'])) != int:
+                    if type(dados['feeds'][numero]['field2']) != int:
                         bd.append(0)
                     else:
                         bd.append(int(dados['feeds'][numero]['field2']))
