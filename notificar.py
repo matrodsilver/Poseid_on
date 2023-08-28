@@ -24,6 +24,6 @@ while True:
         print('sin')
         for usuario in usuarios:
             pbt = Pushbullet(usuario)
-            pbt.push_note('*o*', 'Bueiro em 300k%, ferrou parcero!')
+            pbt.push_note('!!!ALERTA!!!', 'Bueiro acima dos limites de retenção de volume')
 
     time.sleep(5)
