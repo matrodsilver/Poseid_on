@@ -50,7 +50,8 @@ if paginaSelecionada == 'Verificação':
                 tabGrafico, tabDados = sl.tabs(["Gráfico","Dados"])
                 for numero in range(0, n):
                     try:
-                        bd.append(int(dados['feeds'][numero]['field2']))
+                        int(dados['feeds'][numero]['field2'])
+                        bd.append(dados['feeds'][numero]['field2'])
                     except:
                         bd.append(0)
 
