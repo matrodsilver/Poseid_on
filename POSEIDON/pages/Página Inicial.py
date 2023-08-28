@@ -49,7 +49,10 @@ if paginaSelecionada == 'Verificação':
 
                 tabGrafico, tabDados = sl.tabs(["Gráfico","Dados"])
                 for numero in range(0, n):
-                    bd.append(int(dados['feeds'][numero]['field2']))
+                    if int(dados['feeds'][numero]['field2']) == 0:
+                        bd.append(0)
+                    else:
+                        bd.append(int(dados['feeds'][numero]['field2']))
 
                 with tabGrafico:
                     sl.line_chart(bd)
