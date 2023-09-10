@@ -350,49 +350,51 @@
 #  markdowns
 
 import streamlit as sl
-import requests
-from IPython.display import display, HTML
+# import requests
+# from IPython.display import display, HTML
 
-html_content = """
-<img src="https://pbs.twimg.com/profile_images/1337904011920494594/QtqyB40m_400x400.jpg">
-"""
+# html_content = """
+# <img src="https://pbs.twimg.com/profile_images/1337904011920494594/QtqyB40m_400x400.jpg">
+# """
 
-# Display the HTML content
-display(HTML(html_content))
+# # Display the HTML content
+# display(HTML(html_content))
 
-sl.markdown(f'''**Streamlit** ***is*** **really**
-            <h2 class="card-text">_***{'1'}/{'2'}/{'3'}***_</h2>
-            ***cool***.''')
-sl.markdown('''
-    :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in] :grey[pretty] :rainbow[colors].''')
-sl.markdown("Here's a bouquet &mdash;\
-            :tulip::cherry_blossom::rose::hibiscus::sunflower::blossom:")
+# sl.markdown(f'''**Streamlit** ***is*** **really**
+#             <h2 class="card-text">_***{'1'}/{'2'}/{'3'}***_</h2>
+#             ***cool***.''')
+# sl.markdown('''
+#     :red[Streamlit] :orange[can] :green[write] :blue[text] :violet[in] :grey[pretty] :rainbow[colors].''')
+# sl.markdown("Here's a bouquet &mdash;\
+#             :tulip::cherry_blossom::rose::hibiscus::sunflower::blossom:")
 
-sl.markdown('''If you end a line with two spaces,
-a soft return is used for the next line.
+# sl.markdown('''If you end a line with two spaces,
+# a soft return is used for the next line.
 
-Two (or more) newline characters in a row will result in a hard return.
+# Two (or more) newline characters in a row will result in a hard return.
 
-alo
+# alo
 
-<div class="card" style="width: 10rem;">
-      <img class="card-img-top" src="http://openweathermap.org/img/wn/{req5.json()['list'][0]['weather'][0]['icon']}@2x.png" alt="">
-  </div>
-              ''')
-sl.markdown(f'''
-                  <div class="card" style="width: 20rem; height: 0rem;">
-                      <img class="card-img-top" src="http://openweathermap.org/img/wn/{requests.get(f'https://api.openweathermap.org/data/2.5/forecast?q=Osasco,BR&appid=4127401294a510735af86031ebc9697b&units=metric&lang=pt_br').json()['list'][0]['weather'][0]['icon']}@2x.png" alt="">
-                      <div class="card-body">
-                          <h3 class="card-title"> - </h3>
-                          <h4 class="card-text">__</h4>
-                          <h4>--</h4>
-                          <h5>Vento: º</h5>
-                          <h5>Umidade: %</h5>
-                          <h5>Probabilidade de Chuva: %</h5>
-                          <h5>teste: %</h5>
-                          </div>
-                  </div>
-              ''', unsafe_allow_html=True)
+# <div class="card" style="width: 10rem;">
+#       <img class="card-img-top" src="http://openweathermap.org/img/wn/{req5.json()['list'][0]['weather'][0]['icon']}@2x.png" alt="">
+#   </div>
+#               ''')
+# sl.markdown(f'''
+#                   <div class="card" style="width: 20rem; height: 0rem;">
+#                       <img class="card-img-top" src="http://openweathermap.org/img/wn/{requests.get(f'https://api.openweathermap.org/data/2.5/forecast?q=Osasco,BR&appid=4127401294a510735af86031ebc9697b&units=metric&lang=pt_br').json()['list'][0]['weather'][0]['icon']}@2x.png" alt="">
+#                       <div class="card-body">
+#                           <h3 class="card-title"> - </h3>
+#                           <h4 class="card-text">__</h4>
+#                           <h4>--</h4>
+#                           <h5>Vento: º</h5>
+#                           <h5>Umidade: %</h5>
+#                           <h5>Probabilidade de Chuva: %</h5>
+#                           <h5>teste: %</h5>
+#                           </div>
+#                   </div>
+#               ''', unsafe_allow_html=True)
+
+# opção 2
 # f'''
 # <div class="card" style="width: 20rem;">
 #     <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}">
@@ -418,3 +420,14 @@ teste = {'Descrição': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}',
                    'Vento Angulo': {'data1':f'{1}º', 'data2': f'{2}º', 'data3': f'{3}º', 'data4': f'{4}º'}} # debug
 
 sl.table(teste)
+##########################
+# várias linhas no gráfico
+
+import streamlit as sl
+import pandas as p
+import numpy as np
+
+chart_data = p.DataFrame(np.random.rand(10, 4), columns= ["NO2","C2H5CH","VOC","CO"])
+
+sl.line_chart(chart_data)
+sl.area_chart(chart_data)
