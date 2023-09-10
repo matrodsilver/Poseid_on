@@ -2,6 +2,8 @@ import streamlit as sl
 
 sl.header('Seja Bem Vindo ao sistema POSEIDON!')
 sl.markdown('''
+    <img class="card-img-top" src="https://img1.gratispng.com/20180419/xbq/kisspng-trident-of-poseidon-trident-of-poseidon-amphitrite-trident-vector-5ad8ed83e60dd1.8313615815241660199423.jpg" alt="POSEID.ON">
+            
     <h3>Sobre o projeto P.O.S.E.I.D.ON</h3>
                 
     Hoje, trago a vocês uma visão de mudança para as cidades em que vivemos. Comecemos refletindo sobre algo que muitas vezes passa despercebido: os bueiros entupidos. Esses vilões urbanos podem causar estragos significativos, desde enchentes até doenças e caos nas ruas.
@@ -26,5 +28,3 @@ sl.markdown('''
                 
     O projeto "Poseidon" não é apenas uma ideia... é o começo de uma revolução. Ao combinar tecnologia, inovação e colaboração, estamos redefinindo a maneira como nossas cidades enfrentam os desafios das águas das chuvas. Muito obrigado por nos acompanhar hoje. Juntos, estamos construindo cidades mais seguras, limpas e conectadas.
 ''', unsafe_allow_html=True)
-
-

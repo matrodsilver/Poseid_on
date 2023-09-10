@@ -1,114 +1,266 @@
 import requests
 import streamlit as sl
+import pandas as p
 
 
 def pegarValores(n):
 
-    url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
+  url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
 
-    resposta = requests.get(url)
-    if resposta.status_code == 200:
-        return resposta.json()
-    else:
-        print('Erro na requisição')
+  resposta = requests.get(url)
+  if resposta.status_code == 200:
+    return resposta.json()
+  else:
+    print('Erro na requisição')
+    return {}
+
 
 sl.sidebar.title('Menu')
-paginaSelecionada = sl.sidebar.selectbox('Selecione para onde você quer ir', ['Verificação','Dicas'])
+paginaSelecionada = sl.sidebar.selectbox(
+    'Selecione a página a ser exibida', ['Verificação', 'Dicas'])
 
 
 if paginaSelecionada == 'Verificação':
-    def interface():
-        ## Teste Site ##
-        max = pegarValores(0)['channel']['last_entry_id']
+  def inicial():
+    dados = pegarValores(15)
+    bd = []
+    horario = []
+    horarioMin = []
 
-        sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html = True)
-        sl.title('Consulte aqui o que você precisa')
+    tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
+    for numero in range(0, 15): # type: ignore
+          
+        dataBR = dados['feeds'][numero]['created_at']
+        
+        dia = dataBR[8:10]
+        mes = dataBR[5:7]
+        ano = dataBR[:4]
+        hora = dataBR[11:19]
+        
+        horario.append(f'{dia}/{mes}/{ano} {hora}')
+        horarioMin.append(f'{dia}/{mes} {hora}')
 
-        n = sl.text_input(' Digite quantidade dos últimos resultados que você quer:')
-
+        # opção 1
         try:
-            n = int(n)
-
-            if n > max or n < 1:
-                raise Exception('Número fora de alcance')
-
-            inteiro = True
-            dados = pegarValores(n)
-
+          if float(dados['feeds'][numero]['field2']) > 0:
+            bd.append(float(dados['feeds'][numero]['field2']))
+          else:
+            bd.append(0)
+            
         except:
-            f'Digite um número de 1 a {max}'
+          bd.append(0)
+          
+        # # opção 2
+        # try:
+        #   if float(dados['feeds'][numero]['field2']) > 0:
+        #     bd.append(float(dados['feeds'][numero]['field2']))
+          
+        #   else: #(implícito na lógica)
+        #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+        #     pass
+        
+        # except:
+        # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+        #   pass
 
-            inteiro = False
+    dicionarioDados = {}
+    dicionarioDadosMin = {}
+    for n in range(0, len(bd)):
+      dicionarioDados[str(horario[n])] = bd[n]
+      dicionarioDadosMin[str(horarioMin[n])] = bd[n]
 
-        # teste condicional de funcionamento
-        if sl.button('Verificar') and inteiro == True and (0 < n <= dados['channel']['last_entry_id']):
+    with tabGrafico:
+      sl.area_chart(dicionarioDadosMin)
 
-            if dados is not None:
-             
-                bd = []
+    with tabDados:
+      sl.table(dicionarioDados)
+    
+    
+  def interface():
+    ## Teste Site ##
+    dados = None
+    max = pegarValores(0)['channel']['last_entry_id']
 
-                tabGrafico, tabDados = sl.tabs(["Gráfico","Dados"])
-                for numero in range(0, n):
-                    try:
-                        bd.append(float(dados['feeds'][numero]['field2']))
-                    except:
-                        bd.append(0)
+    sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
+    sl.title('Consulte aqui as informações necessárias')
 
-                with tabGrafico:
-                    sl.line_chart(bd)
-                
-                with tabDados:
-                    sl.table(bd)
+    n = sl.text_input(
+        f'Quantidade dos últimos resultados a serem exibidos:')
 
-                # sl.write(dados)
+    try:
+      n = int(n)
 
-        ## Teste Clima##
-        token = '4127401294a510735af86031ebc9697b'
+      if n > max or n < 1:
+        raise Exception('Número fora de alcance')
 
-        cidade = sl.text_input('Digite a cidade que você quer receber as informações do clima:')
-        codigoDoPais = 'BR'
+      inteiro = True
+      dados = pegarValores(n)
 
-        url5 = f'https://api.openweathermap.org/data/2.5/forecast?q={cidade},{codigoDoPais}&appid={token}&units=metric&lang={"pt_br"}'
+    except:
+      f'Digite um número de 1 a {max}'
 
-        req = requests.get(url5)
+      inteiro = False
 
-        if sl.button('Consultar'):
-            if req.status_code == 200:
+    # teste condicional de funcionamento
+    if sl.button('Verificar') and inteiro == True and (0 < n <= dados['channel']['last_entry_id']): # type: ignore
 
-                info = req.json()
+      if dados is not None:
 
-                ultimoDia = 0
+        bd = []
+        horario = []
+        horarioMin = []
 
-                for n in range(0, len(info['list'])):
-                    tempo = info['list'][n]['weather'][0]
-                    vento = info['list'][n]['wind']
-                    data = info["list"][n]["dt_txt"]
+        tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
+        for numero in range(0, n): # type: ignore
+          
+          dataBR = dados['feeds'][numero]['created_at']
+          
+          dia = dataBR[8:10]
+          mes = dataBR[5:7]
+          ano = dataBR[:4]
+          hora = dataBR[11:19]
+          
+          horario.append(f'{dia}/{mes}/{ano} {hora}')
+          horarioMin.append(f'{dia}/{mes} {hora}')
 
-                    dia = data[8:10]
-                    mes = data[5:7]
-                    ano = data[0:4]
-                    hora = data[11:16]
-
-                    # aqui fica o card
-                    sl.markdown(f'''
-                            <div class="card" style="width: 10rem;">
-                                <img class="card-img-top" src="http://openweathermap.org/img/wn/{tempo["icon"]}@2x.png" alt="{tempo["main"]}">
-                                <div class="card-body">
-                                    <h3 class="card-title">{tempo["main"]} - {tempo["description"]}</h3>
-                                    <h4 class="card-text">_{dia}/{mes}/{ano}_</h4>
-                                    <h4>--{hora}--</h4>
-                                    <h5>Vento: {vento["speed"]} - {vento["deg"]}º</h5>
-                                </div>
-                            </div>
-                        ''', unsafe_allow_html=True)
-                    # sl.write(info)
+          # opção 1
+          try:
+            if float(dados['feeds'][numero]['field2']) > 0:
+              bd.append(float(dados['feeds'][numero]['field2']))
             else:
-                'Não foi possível encontrar o resultado pesquisado'
-                sl.write(req)
+              bd.append(0)
+              
+          except:
+            bd.append(0)
+            
+          # # opção 2
+          # try:
+          #   if float(dados['feeds'][numero]['field2']) > 0:
+          #     bd.append(float(dados['feeds'][numero]['field2']))
+            
+          #   else: #(implícito na lógica)
+          #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+          #     pass
+          
+          # except:
+          # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+          #   pass
+        
+        dicionarioDados = {}
+        dicionarioDadosMin = {}
+        for n in range(0, len(bd)):
+          dicionarioDados[str(horario[n])] = bd[n]
+          dicionarioDadosMin[str(horarioMin[n])] = bd[n]
 
-    interface()
-elif paginaSelecionada == 'Dicas' :
-    sl.markdown('''
+        with tabGrafico:
+          sl.area_chart(dicionarioDadosMin)
+
+        with tabDados:
+          sl.table(dicionarioDados)
+
+        # sl.write(dados)
+
+    ## Clima ##
+    token = '4127401294a510735af86031ebc9697b'
+
+    cidade = sl.text_input(
+        'Digite a cidade a qual deseja consultar informações climáticas:')
+    codigoDoPais = 'BR'
+
+    # FIAP(lat, long) = -23.57323583564156, -46.623008521519246
+
+    url5dias = f'https://api.openweathermap.org/data/2.5/forecast?q={cidade},{codigoDoPais}&appid={token}&units=metric&lang={"pt_br"}'
+    # urlCurrent = f'https://api.openweathermap.org/data/2.5/weather?lat={-23.57323583564156}&lon={-46.623008521519246}&appid={token}&units=metric&lang={"pt_br"}'
+    # urlMapa = f'https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}&units=metric&lang={"pt_br"}'
+    # urlGeo = f'http://api.openweathermap.org/geo/1.0/direct?q={cidade},{codigoDoPais}&appid={token}&units=metric&lang={"pt_br"}'
+    # urlTrigger = f'http://api.openweathermap.org/data/3.0/triggers'
+    
+    req5 = requests.get(url5dias)
+    # reqCurrent = requests.get(urlCurrent)
+    # reqMapa = requests.get(urlMapa)
+    # reqGeo = requests.get(urlGeo)
+    # reqTrigger = requests.get(urlTrigger)
+
+    if sl.button('Consultar'):
+      if req5.status_code == 200:
+
+        info = req5.json()
+
+        ultimoDia = 0
+        ultimaHora = 0
+        
+        for n in range(len(info['list'])):
+          dadosClima = info['list'][n]['weather'][0]
+
+          data = info['list'][n]['dt_txt']
+          descricaoGeral = dadosClima['main']
+          descricaoFiltrada = dadosClima['description']
+          ventoVelocidade = info['list'][n]['wind']['speed']
+          ventoAngulo = info['list'][n]['wind']['deg']
+          umidade = info['list'][n]['main']['humidity']
+          probabilidadeDeChuva = info['list'][n]['pop']
+          
+          icone = dadosClima["icon"]
+          
+          #visibilidade = 
+          #nuvens =
+          
+          
+          teste = {'Descrição': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
+                   'Filtrada': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
+                   
+                   'Visualização': {'data1':1, 'data2': 2, 'data3': 3, 'data4': 4}, # debug
+                   
+                   'Umidade': {'data1':f'{1}%','data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
+                   'Probabilidade de Chuva': {'data1':f'{1}%', 'data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
+                   'Vento Velocidade': {'data1':f'{1}km/h', 'data2': f'{2}km/h', 'data3': f'{3}km/h', 'data4': f'{4}km/h'},
+                   'Vento Angulo': {'data1':f'{1}º', 'data2': f'{2}º', 'data3': f'{3}º', 'data4': f'{4}º'}} # debug
+
+
+          dia = data[8:10]
+          mes = data[5:7]
+          ano = data[0:4]
+          hora = data[11:16]
+
+          
+          card = ''
+
+
+          if dia != ultimoDia:
+            ultimoDia = dia
+            
+            card += f'''<h1 class="card-text" style="height: 4rem;">{dia}/{mes}/{ano}</h1>
+            <h6 class="card-text" style="height: 0rem;"> ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</h6>'''
+            
+            
+          card += f'''<h3 style="height: .0rem;">{hora}</h3>
+          <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
+          <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
+          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada}</h5>
+          <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: {probabilidadeDeChuva}%</h5>
+          <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
+          <h6 style="height: 0rem;"></h6>'''
+
+          # aqui fica o card
+          sl.markdown(card, unsafe_allow_html=True)
+          
+          
+          # sl.table(teste)
+          
+          descG = teste['Descrição']
+          for feature in teste:
+            descG[f'{dia}/{mes} {hora}'] = descricaoFiltrada
+          
+      else:
+        'Não foi possível encontrar o resultado pesquisado'
+        # sl.write(req) # mostra todo o arquivo JSON
+
+  inicial()
+  interface()
+
+elif paginaSelecionada == 'Dicas':
+  sl.markdown('''
 <h3>Preserve o Nosso Meio Ambiente: Não Jogue Lixo na Rua ou nos Bueiros</h3>
 
 Em nosso dia a dia agitado, muitas vezes, esquecemos o impacto que nossas ações podem ter no meio ambiente. Uma dessas ações é o descarte inadequado de lixo, especialmente nas ruas e bueiros. Parece inofensivo, mas o que você joga na rua ou nos bueiros tem consequências sérias para o nosso planeta e para a qualidade de vida de todos nós.
@@ -140,4 +292,4 @@ Em nosso dia a dia agitado, muitas vezes, esquecemos o impacto que nossas açõe
 </ul>
 
 <h6>Cada ação conta. Vamos trabalhar juntos para manter nossas ruas limpas, nossos bueiros desobstruídos e nosso planeta saudável para as futuras gerações. A mudança começa com você!</h6>
-''', unsafe_allow_html= True)
+''', unsafe_allow_html=True)
