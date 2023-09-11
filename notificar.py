@@ -1,29 +1,62 @@
 from pushbullet import Pushbullet
 import requests
 import time
+import pandas as p
 
 
 def pegarValores():
-    url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results=1'
+  urlTSultimoResultado = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results=1'
 
-    resposta = requests.get(url)
+  resposta = requests.get(urlTSultimoResultado)
 
-    if resposta.status_code == 200:
-        return resposta.json()
-    else:
-        print('Erro na requisição')
+  if resposta.status_code == 200:
+    return resposta.json()
+  else:
+    print('Erro na requisição')
+    return {}
 
 
-eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
-tadashi = 'x'
+def avisar():
+  if int(pegarValores()['feeds'][0]['field1']) > 1:
+    print('sin')
+    
+    eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
+    tadashi = 'x'
 
-usuarios = [eu]
+    usuarios = [eu]
+    
+    for usuario in usuarios:  # type:ignore
+      pbt = Pushbullet(usuario)
+      pbt.push_note(
+          '⚠️Aviso⚠️', '⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠')
+
+
+def enviar():
+  token = '4127401294a510735af86031ebc9697b'
+  # FIAP(lat, long) = -23.57323583564156, -46.623008521519246
+
+  urlCurrent = f'https://api.openweathermap.org/data/2.5/weather?lat={-23.57323583564156}&lon={-46.623008521519246}&appid={token}&units=metric&lang={"pt_br"}'
+  print(urlCurrent)
+  reqCurrent = requests.get(urlCurrent)
+  infoCurrent = reqCurrent.json()
+
+  descricaoCurrent = infoCurrent['weather'][0]['description']
+  mainCurrent = infoCurrent['weather'][0]['main']
+  umidadeCurrent = infoCurrent['main']['humidity']
+  chuva1h = 0 #infoCurrent['rain']['1h']
+  ventoVelocidadeCurrent = infoCurrent['wind']['speed']
+  ventoAnguloCurrent = infoCurrent['wind']['deg']
+  
+  icone = infoCurrent['weather'][0]['icon']
+
+  requests.post(f"https://api.thingspeak.com/update?api_key=MB4W5VR14OISKTZU&units=metric&lang={'pt_br'}&field1='{descricaoCurrent}'&field2='{mainCurrent}'&field3={chuva1h}&field4={umidadeCurrent}&field5={ventoVelocidadeCurrent}&field6={ventoAnguloCurrent}")#&field7={None}&field8={None}")
+  print(infoCurrent)
+
+
+enviar()
 
 while True:
-    if int(pegarValores()['feeds'][0]['field1']) > 1:
-        print('sin')
-        for usuario in usuarios:
-            pbt = Pushbullet(usuario)
-            pbt.push_note('*o*', 'Bueiro em 300k%, ferrou parcero!')
+  #avisar()
+  enviar()
 
-    time.sleep(5)
+  time.sleep(20)

@@ -1,0 +1,16 @@
+-umidade
+*chuva last1h
+descrição ( -main, -pt)
+-vento (-velocidade, -angulo)
+?nuvens
+
+5:
+-umidade
+?nuvens
+-vento (-velocidade, -angulo, ?gust)
+-probabilidadePrecipitação
+-chuva last3h
+-descrição (-main, -pt)
+-icone
+
+?visibility
