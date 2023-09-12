@@ -249,8 +249,8 @@ if paginaSelecionada == 'Verificação':
           <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
           <h5 style="height: 0rem;">Clima: {descricaoFiltrada} ({descricaoGeral})</h5>
-          <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: {probabilidadeDeChuva}%</h5>
+          <h5 style="height: 0rem;">Umidade: {umidade*100}%</h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: {probabilidadeDeChuva*100}%</h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
           
