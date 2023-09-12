@@ -243,9 +243,6 @@ if paginaSelecionada == 'Verificação':
             
             card += f'''<h1 class="card-text" style="height: 4rem;">{dia}/{mes}/{ano}</h1>
             <h6 class="card-text" style="height: 0rem;"> ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</h6>'''
-
-          def cor():
-            return f'#{probabilidadeDeChuva}{99 - probabilidadeDeChuva}00'
             
             
           card += f'''<h3 style="height: .0rem;">{hora}</h3>
@@ -253,9 +250,9 @@ if paginaSelecionada == 'Verificação':
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
           <h5 style="height: 0rem;">Clima: {descricaoFiltrada} ({descricaoGeral})</h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem; color: {cor()}">Probabilidade de Precipitação: {round(probabilidadeDeChuva*100, 2)}%</h5>
+          <h5 style="height: 0rem; color: #{probabilidadeDeChuva}{100 - probabilidadeDeChuva}00">Probabilidade de Precipitação: {round(probabilidadeDeChuva*100, 2)}%</h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
-          <h6 style="height: 0rem;"></h6>'''
+          <h6 style="height: 0rem;">#{probabilidadeDeChuva}{100 - probabilidadeDeChuva}00</h6>'''
           
           # <h5 style="height: 0rem;">Precipitação na última Hora: {requests.get(f'https://api.hgbrasil.com/weather?key=08b86aef&city_name={cidade}').json()[]}%</h5>
 
