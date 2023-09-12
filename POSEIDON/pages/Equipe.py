@@ -2,6 +2,8 @@ import streamlit as sl
 
 sl.title('Conheça nossa equipe')
 
+sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
+
 sl.markdown(f'''
     <div class="card">
         <h2>Gabriel Tadashi</h2>
