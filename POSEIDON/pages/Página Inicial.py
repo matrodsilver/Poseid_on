@@ -1,6 +1,5 @@
 import requests
 import streamlit as sl
-import pandas as p
 
 
 def pegarValores(n):
@@ -21,7 +20,9 @@ paginaSelecionada = sl.sidebar.selectbox(
 
 
 if paginaSelecionada == 'Verificação':
+  
   def inicial():
+    sl.markdown('***<h6 style="color: #808080;">Dados mais recentes</h6>***', unsafe_allow_html=True)
     dados = pegarValores(15)
     bd = []
     horario = []
@@ -187,7 +188,6 @@ if paginaSelecionada == 'Verificação':
         info = req5.json()
 
         ultimoDia = 0
-        ultimaHora = 0
         
         for n in range(len(info['list'])):
           dadosClima = info['list'][n]['weather'][0]
@@ -205,24 +205,50 @@ if paginaSelecionada == 'Verificação':
           #visibilidade = 
           #nuvens =
           
-          
-          teste = {'Descrição': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
-                   'Filtrada': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
-                   
-                   'Visualização': {'data1':1, 'data2': 2, 'data3': 3, 'data4': 4}, # debug
-                   
-                   'Umidade': {'data1':f'{1}%','data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
-                   'Probabilidade de Chuva': {'data1':f'{1}%', 'data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
-                   'Vento Velocidade': {'data1':f'{1}km/h', 'data2': f'{2}km/h', 'data3': f'{3}km/h', 'data4': f'{4}km/h'},
-                   'Vento Angulo': {'data1':f'{1}º', 'data2': f'{2}º', 'data3': f'{3}º', 'data4': f'{4}º'}} # debug
-
 
           dia = data[8:10]
           mes = data[5:7]
           ano = data[0:4]
           hora = data[11:16]
-
           
+          def cor(prob):
+            prob = round(prob * 100)
+            prob2 = round(99 - prob)
+            
+            if prob > 99:
+              prob = 99
+            if prob2 < 0:
+              prob2 = 0
+              
+            if len(str(prob)) < 2:
+              add = ''
+              
+              while len(str(add)) < 2 - len(str(prob)):
+                add += '0'
+              
+              add += f'{prob}'
+              
+              prob = add
+            
+            if len(str(prob2)) < 2:
+              add = ''
+              
+              while len(str(add)) < 2 - len(str(prob2)):
+                add += '0'
+              
+              add += f'{prob2}'
+              
+              prob2 = add
+
+            hex = f'#{prob}{prob2}00'
+              
+            return hex
+          def recomendar():
+            if probabilidadeDeChuva > .98:
+              return '(Chuva é certa, coleta não é recomendada)'
+            else:
+              return ''
+
           card = ''
 
 
@@ -238,23 +264,15 @@ if paginaSelecionada == 'Verificação':
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
           <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada}</h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: {probabilidadeDeChuva}%</h5>
+          <h5 style="height: 0rem; color: {cor(probabilidadeDeChuva)}">Probabilidade de Precipitação: {round(probabilidadeDeChuva * 100)}% {recomendar()}</h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
           # aqui fica o card
           sl.markdown(card, unsafe_allow_html=True)
           
-          
-          # sl.table(teste)
-          
-          descG = teste['Descrição']
-          for feature in teste:
-            descG[f'{dia}/{mes} {hora}'] = descricaoFiltrada
-          
       else:
         'Não foi possível encontrar o resultado pesquisado'
-        # sl.write(req) # mostra todo o arquivo JSON
 
   inicial()
   interface()
