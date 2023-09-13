@@ -264,7 +264,7 @@ if paginaSelecionada == 'Verificação':
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
           <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada}</h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem; color: {cor(probabilidadeDeChuva)}">Probabilidade de Precipitação: {round(probabilidadeDeChuva * 100)}% {recomendar()}</h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar()}</span></h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
