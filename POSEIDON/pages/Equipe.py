@@ -29,7 +29,7 @@ sl.markdown(f'''<div class="card">
         </div>
         <img class="card-img-top" style="width: 10rem;" src="https://i.imgur.com/YqFw6VS.jpg" alt="Gabriel Sakura">
         <h4 class="card-title" style="color: #00c4bb">Desenvolvedor Geral</h4>
-        <h6>Participou em quase todas as etapas do projeto, incluindo o site, a montagem eletrônica, da na maquete e idealização</h6>
+        <h6>Participou em quase todas as etapas do projeto, incluindo o site, a montagem eletrônica, confecção da maquete e idealização</h6>
 ''', unsafe_allow_html=True)
 
 sl.markdown(f'''
