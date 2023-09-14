@@ -1,8 +1,8 @@
 import streamlit as sl
 
-sl.header('Seja Bem Vindo ao sistema POSEIDON!')
+sl.markdown('**<h2 style="height: 0rem; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
 sl.markdown('''
-    <img class="card-img-top" src="https://img1.gratispng.com/20180419/xbq/kisspng-trident-of-poseidon-trident-of-poseidon-amphitrite-trident-vector-5ad8ed83e60dd1.8313615815241660199423.jpg" alt="POSEID.ON">
+    <img style="height: 25rem;" class="card-img-top" src="https://i.imgur.com/MvvFp8Q.png" alt="POSEID.ON">
             
     <h3>Sobre o projeto P.O.S.E.I.D.ON</h3>
                 
