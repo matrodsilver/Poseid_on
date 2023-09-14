@@ -1,9 +1,15 @@
 import streamlit as sl
 
-sl.markdown('**<h2 style="height: 0rem; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
+sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
+
+# imagem levemente maior: https://i.imgur.com/xczvDjR.png
+
+sl.markdown('**<h2 style="height: 50px; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
 sl.markdown('''
-    <img style="height: 25rem;" class="card-img-top" src="https://i.imgur.com/MvvFp8Q.png" alt="POSEID.ON">
-            
+    <div class="card border-0" style="height: 20rem; width:24rem; background-color: #f5fbff;">
+        <img style="height: 20rem; width:24rem;" class="card-img-top" src="https://i.imgur.com/xPWdn90.png" alt="POSEID.ON">
+    </div>
+    
     <h3>Sobre o projeto P.O.S.E.I.D.ON</h3>
                 
     Hoje, trago a vocês uma visão de mudança para as cidades em que vivemos. Comecemos refletindo sobre algo que muitas vezes passa despercebido: os bueiros entupidos. Esses vilões urbanos podem causar estragos significativos, desde enchentes até doenças e caos nas ruas.
