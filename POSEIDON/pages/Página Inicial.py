@@ -20,63 +20,6 @@ paginaSelecionada = sl.sidebar.selectbox(
 
 
 if paginaSelecionada == 'Verificação':
-  
-  def inicial():
-    sl.markdown('***<h6 style="color: #808080;">Dados mais recentes</h6>***', unsafe_allow_html=True)
-    dados = pegarValores(15)
-    bd = []
-    horario = []
-    horarioMin = []
-
-    tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
-    for numero in range(0, 15): # type: ignore
-          
-        dataBR = dados['feeds'][numero]['created_at']
-        
-        dia = dataBR[8:10]
-        mes = dataBR[5:7]
-        ano = dataBR[:4]
-        hora = dataBR[11:19]
-        
-        horario.append(f'{dia}/{mes}/{ano} {hora}')
-        horarioMin.append(f'{dia}/{mes} {hora}')
-
-        # opção 1
-        try:
-          if float(dados['feeds'][numero]['field2']) > 0:
-            bd.append(float(dados['feeds'][numero]['field2']))
-          else:
-            bd.append(0)
-            
-        except:
-          bd.append(0)
-          
-        # # opção 2
-        # try:
-        #   if float(dados['feeds'][numero]['field2']) > 0:
-        #     bd.append(float(dados['feeds'][numero]['field2']))
-          
-        #   else: #(implícito na lógica)
-        #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-        #     pass
-        
-        # except:
-        # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-        #   pass
-
-    dicionarioDados = {}
-    dicionarioDadosMin = {}
-    for n in range(0, len(bd)):
-      dicionarioDados[str(horario[n])] = bd[n]
-      dicionarioDadosMin[str(horarioMin[n])] = bd[n]
-
-    with tabGrafico:
-      sl.area_chart(dicionarioDadosMin)
-
-    with tabDados:
-      sl.table(dicionarioDados)
-    
-    
   def interface():
     ## Teste Site ##
     dados = None
@@ -94,72 +37,72 @@ if paginaSelecionada == 'Verificação':
       if n > max or n < 1:
         raise Exception('Número fora de alcance')
 
-      inteiro = True
       dados = pegarValores(n)
 
     except:
-      f'Digite um número de 1 a {max}'
+      n = 15
+      
+      dados = pegarValores(n)
 
-      inteiro = False
+      sl.markdown(f'''<h6 style ="height: 0rem; color: #808080; ">Digite um número de 1 a {max}</h6>
+                  <h6 style ="height: 0rem; color: #808080; ">Exibindo os 15 resultados mais recentes</h6>''', unsafe_allow_html=True)
 
     # teste condicional de funcionamento
-    if sl.button('Verificar') and inteiro == True and (0 < n <= dados['channel']['last_entry_id']): # type: ignore
+    if dados is not None:
 
-      if dados is not None:
+      bd = []
+      horario = []
+      horarioMin = []
 
-        bd = []
-        horario = []
-        horarioMin = []
+      tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
+      for numero in range(0, n):  # type: ignore
 
-        tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
-        for numero in range(0, n): # type: ignore
-          
-          dataBR = dados['feeds'][numero]['created_at']
-          
-          dia = dataBR[8:10]
-          mes = dataBR[5:7]
-          ano = dataBR[:4]
-          hora = dataBR[11:19]
-          
-          horario.append(f'{dia}/{mes}/{ano} {hora}')
-          horarioMin.append(f'{dia}/{mes} {hora}')
+        dataBR = dados['feeds'][numero]['created_at']
 
-          # opção 1
-          try:
-            if float(dados['feeds'][numero]['field2']) > 0:
-              bd.append(float(dados['feeds'][numero]['field2']))
-            else:
-              bd.append(0)
-              
-          except:
+        dia = dataBR[8:10]
+        mes = dataBR[5:7]
+        ano = dataBR[:4]
+        hora = dataBR[11:19]
+
+        horario.append(f'{dia}/{mes}/{ano} {hora}')
+        horarioMin.append(f'{dia}/{mes} {hora}')
+
+        # opção 1
+        try:
+          if float(dados['feeds'][numero]['field2']) > 0:
+            bd.append(float(dados['feeds'][numero]['field2']))
+          else:
             bd.append(0)
-            
-          # # opção 2
-          # try:
-          #   if float(dados['feeds'][numero]['field2']) > 0:
-          #     bd.append(float(dados['feeds'][numero]['field2']))
-            
-          #   else: #(implícito na lógica)
-          #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-          #     pass
-          
-          # except:
-          # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-          #   pass
-        
-        dicionarioDados = {}
-        dicionarioDadosMin = {}
-        for n in range(0, len(bd)):
-          dicionarioDados[str(horario[n])] = bd[n]
-          dicionarioDadosMin[str(horarioMin[n])] = bd[n]
 
-        with tabGrafico:
-          sl.area_chart(dicionarioDadosMin)
+        except:
+          bd.append(0)
 
-        with tabDados:
-          sl.table(dicionarioDados)
+        # # opção 2
+        # try:
+        #   if float(dados['feeds'][numero]['field2']) > 0:
+        #     bd.append(float(dados['feeds'][numero]['field2']))
 
-        # sl.write(dados)
+        #   else: #(implícito na lógica)
+        #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+        #     pass
+
+        # except:
+        # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
+        #   pass
+
+      dicionarioDados = {}
+      dicionarioDadosMin = {}
+      for n in range(0, len(bd)):
+        dicionarioDados[str(horario[n])] = bd[n]
+        dicionarioDadosMin[str(horarioMin[n])] = bd[n]
+
+      with tabGrafico:
+        sl.area_chart(dicionarioDadosMin)
+
+      with tabDados:
+        sl.table(dicionarioDados)
+
+      # sl.write(dados)
 
     ## Clima ##
     token = '4127401294a510735af86031ebc9697b'
@@ -175,7 +118,7 @@ if paginaSelecionada == 'Verificação':
     # urlMapa = f'https://tile.openweathermap.org/map/{layer}/{z}/{x}/{y}.png?appid={API key}&units=metric&lang={"pt_br"}'
     # urlGeo = f'http://api.openweathermap.org/geo/1.0/direct?q={cidade},{codigoDoPais}&appid={token}&units=metric&lang={"pt_br"}'
     # urlTrigger = f'http://api.openweathermap.org/data/3.0/triggers'
-    
+
     req5 = requests.get(url5dias)
     # reqCurrent = requests.get(urlCurrent)
     # reqMapa = requests.get(urlMapa)
@@ -188,7 +131,7 @@ if paginaSelecionada == 'Verificação':
         info = req5.json()
 
         ultimoDia = 0
-        
+
         for n in range(len(info['list'])):
           dadosClima = info['list'][n]['weather'][0]
 
@@ -199,50 +142,50 @@ if paginaSelecionada == 'Verificação':
           ventoAngulo = info['list'][n]['wind']['deg']
           umidade = info['list'][n]['main']['humidity']
           probabilidadeDeChuva = info['list'][n]['pop']
-          
+
           icone = dadosClima["icon"]
-          
-          #visibilidade = 
-          #nuvens =
-          
+
+          # visibilidade =
+          # nuvens =
 
           dia = data[8:10]
           mes = data[5:7]
           ano = data[0:4]
           hora = data[11:16]
-          
+
           def cor(prob):
             prob = round(prob * 100)
             prob2 = round(99 - prob)
-            
+
             if prob > 99:
               prob = 99
             if prob2 < 0:
               prob2 = 0
-              
+
             if len(str(prob)) < 2:
               add = ''
-              
+
               while len(str(add)) < 2 - len(str(prob)):
                 add += '0'
-              
+
               add += f'{prob}'
-              
+
               prob = add
-            
+
             if len(str(prob2)) < 2:
               add = ''
-              
+
               while len(str(add)) < 2 - len(str(prob2)):
                 add += '0'
-              
+
               add += f'{prob2}'
-              
+
               prob2 = add
 
             hex = f'#{prob}{prob2}00'
-              
+
             return hex
+
           def recomendar():
             if probabilidadeDeChuva > .98:
               return '(Chuva é certa, coleta não é recomendada)'
@@ -251,14 +194,12 @@ if paginaSelecionada == 'Verificação':
 
           card = ''
 
-
           if dia != ultimoDia:
             ultimoDia = dia
-            
+
             card += f'''<h1 class="card-text" style="height: 4rem;">{dia}/{mes}/{ano}</h1>
             <h6 class="card-text" style="height: 0rem;"> ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</h6>'''
-            
-            
+
           card += f'''<h3 style="height: .0rem;">{hora}</h3>
           <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
@@ -270,11 +211,10 @@ if paginaSelecionada == 'Verificação':
 
           # aqui fica o card
           sl.markdown(card, unsafe_allow_html=True)
-          
+
       else:
         'Não foi possível encontrar o resultado pesquisado'
 
-  inicial()
   interface()
 
 elif paginaSelecionada == 'Dicas':
