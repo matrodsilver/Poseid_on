@@ -6,7 +6,7 @@ sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/b
 
 sl.markdown('**<h2 style="height: 50px; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
 sl.markdown('''
-    <div class="card border-0" style="height: 20rem; width:24rem; background-color: #f5fbff;">
+    <div class="card border-0" style="height: 20rem; width:24rem; background-color: 00007d;">
         <img style="height: 20rem; width:24rem;" class="card-img-top" src="https://i.imgur.com/xPWdn90.png" alt="POSEID.ON">
     </div>
     
