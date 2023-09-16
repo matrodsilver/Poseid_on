@@ -1,14 +1,18 @@
 import requests
 import streamlit as sl
+import pandas as p
 
 
 def pegarValores(n):
 
-  url = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
+  urlDados = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
+  urlClima = f'https://api.thingspeak.com/channels/2244673/feeds.json?api_key=FOKGIHJ79MUZHIFW&results={n}'
 
-  resposta = requests.get(url)
-  if resposta.status_code == 200:
-    return resposta.json()
+  respostaDados = requests.get(urlDados)
+  respostaClima = requests.get(urlClima)
+
+  if respostaDados.status_code == 200:
+    return [respostaDados.json(), respostaClima.json()]
   else:
     print('Erro na requisição')
     return {}
@@ -23,7 +27,7 @@ if paginaSelecionada == 'Verificação':
   def interface():
     ## Teste Site ##
     dados = None
-    max = pegarValores(0)['channel']['last_entry_id']
+    max = pegarValores(0)[0]['channel']['last_entry_id']
 
     sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
     sl.title('Consulte aqui as informações necessárias')
@@ -37,12 +41,14 @@ if paginaSelecionada == 'Verificação':
       if n > max or n < 1:
         raise Exception('Número fora de alcance')
 
-      dados = pegarValores(n)
+      dados = pegarValores(n)[0]
+      clima = pegarValores(n)[1]
 
     except:
       n = 15
       
-      dados = pegarValores(n)
+      dados = pegarValores(n)[0]
+      clima = pegarValores(n)[1]
 
       sl.markdown(f'''<h6 style ="height: 0rem; color: #808080; ">Digite um número de 1 a {max}</h6>
                   <h6 style ="height: 0rem; color: #808080; ">Exibindo os 15 resultados mais recentes</h6>''', unsafe_allow_html=True)
@@ -51,11 +57,15 @@ if paginaSelecionada == 'Verificação':
     if dados is not None:
 
       bd = []
+      bdClima = {'Descrição':{}, 'Categoria':{}, 'Umidade':{}, 'Probabilidade de Chuva':{}, 'Vento Velocidade':{}, 'Vento Angulo':{}}
       horario = []
       horarioMin = []
+      horarioClima = []
 
-      tabGrafico, tabDados = sl.tabs(["Gráfico", "Dados"])
-      for numero in range(0, n):  # type: ignore
+      tabGrafico, tabDados, tabClimaRegistrado = sl.tabs(["Gráfico", "Dados", "Clima Registrado"])
+      for numero in range(n):
+
+        # Dados dos sensores
 
         dataBR = dados['feeds'][numero]['created_at']
 
@@ -76,8 +86,9 @@ if paginaSelecionada == 'Verificação':
 
         except:
           bd.append(0)
-
-        # # opção 2
+          
+          
+        # # opção 2 # fica com menos resultados do que os pesquisados se algum valor = 0
         # try:
         #   if float(dados['feeds'][numero]['field2']) > 0:
         #     bd.append(float(dados['feeds'][numero]['field2']))
@@ -89,18 +100,56 @@ if paginaSelecionada == 'Verificação':
         # except:
         # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
         #   pass
+        
+        
+        # Dados do clima
+
+        dataClima = clima['feeds'][numero]['created_at']
+
+        diaClima = dataClima[8:10]
+        mesClima = dataClima[5:7]
+        anoClima = dataClima[:4]
+        horaClima = dataClima[11:19]
+
+        horarioClima.append(f'{diaClima}/{mesClima}/{anoClima} {horaClima}')
+          
+        bdClima['Descrição'][horarioClima[numero]] = clima['feeds'][numero]['field1']
+        bdClima['Categoria'][horarioClima[numero]] = clima['feeds'][numero]['field2']
+        bdClima['Umidade'][horarioClima[numero]] = str(clima['feeds'][numero]['field4'])+'%'
+        bdClima['Probabilidade de Chuva'][horarioClima[numero]] = str(clima['feeds'][numero]['field3']) # * 100)+'%'
+        bdClima['Vento Velocidade'][horarioClima[numero]] = str(clima['feeds'][numero]['field5'])+'km/h'
+        bdClima['Vento Angulo'][horarioClima[numero]] = str(clima['feeds'][numero]['field6'])+'°'
+
 
       dicionarioDados = {}
       dicionarioDadosMin = {}
+      
+      # dicionarioClima = {'Categoria': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
+      #                    'Descrição': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
+                   
+      #                     'Visualização': {'data1':1, 'data2': 2, 'data3': 3, 'data4': 4}, # debug: imagens
+                          
+      #                     'Umidade': {'data1':f'{1}%','data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
+      #                     'Probabilidade de Chuva': {'data1':f'{1}%', 'data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
+      #                     'Vento Velocidade': {'data1':f'{1}km/h', 'data2': f'{2}km/h', 'data3': f'{3}km/h', 'data4': f'{4}km/h'},
+      #                     'Vento Angulo': {'data1':f'{1}º', 'data2': f'{2}º', 'data3': f'{3}º', 'data4': f'{4}º'}}
+      
       for n in range(0, len(bd)):
         dicionarioDados[str(horario[n])] = bd[n]
         dicionarioDadosMin[str(horarioMin[n])] = bd[n]
 
+      grafico = p.DataFrame({'Data': dicionarioDadosMin.keys(), 'Medição (cm)': dicionarioDadosMin.values()})
+
       with tabGrafico:
-        sl.area_chart(dicionarioDadosMin)
+        sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
       with tabDados:
+        # dicionarioDados = [str(v)+' cm' for v in dicionarioDados.values()] # tentativa de colocar cm na frente de cada valor (mas data sai do index)
         sl.table(dicionarioDados)
+      
+      with tabClimaRegistrado:
+        sl.line_chart(bdClima)
+        sl.table(bdClima)
 
       # sl.write(dados)
 
@@ -186,11 +235,18 @@ if paginaSelecionada == 'Verificação':
 
             return hex
 
-          def recomendar():
-            if probabilidadeDeChuva > .98:
-              return '(Chuva é certa, coleta não é recomendada)'
-            else:
-              return ''
+          def recomendar(var):
+            if type(var) == float: # se é float
+              if var > .98:
+                return '(Chuva é certa, coleta não recomendada)'
+              else:
+                return ''
+            
+            else: # (basicamente) se é string
+              if var == 'Rain':
+                return '(Clima chuvoso, coleta não recomendada)'
+              else:
+                return ''
 
           card = ''
 
@@ -203,9 +259,9 @@ if paginaSelecionada == 'Verificação':
           card += f'''<h3 style="height: .0rem;">{hora}</h3>
           <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
-          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada}</h5>
+          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #990000">{recomendar(descricaoGeral)}</span></h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar()}</span></h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
