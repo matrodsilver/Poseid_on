@@ -1,7 +1,6 @@
 from pushbullet import Pushbullet
 import requests
 import time
-import pandas as p
 
 
 def pegarValores():
@@ -17,7 +16,7 @@ def pegarValores():
 
 
 def avisar():
-  if int(pegarValores()['feeds'][0]['field1']) > 1:
+  if int(pegarValores()['feeds'][0]['field1']) > 50:
     print('sin')
     
     eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
@@ -43,20 +42,20 @@ def enviar():
   descricaoCurrent = infoCurrent['weather'][0]['description']
   mainCurrent = infoCurrent['weather'][0]['main']
   umidadeCurrent = infoCurrent['main']['humidity']
-  chuva1h = 0 #infoCurrent['rain']['1h']
+  chuva1h = 0 #infoCurrent['list'][0]['pop'] # não tem pop nem rain1h
   ventoVelocidadeCurrent = infoCurrent['wind']['speed']
   ventoAnguloCurrent = infoCurrent['wind']['deg']
   
-  icone = infoCurrent['weather'][0]['icon']
+  # icone = infoCurrent['weather'][0]['icon']
 
-  requests.post(f"https://api.thingspeak.com/update?api_key=MB4W5VR14OISKTZU&units=metric&lang={'pt_br'}&field1='{descricaoCurrent}'&field2='{mainCurrent}'&field3={chuva1h}&field4={umidadeCurrent}&field5={ventoVelocidadeCurrent}&field6={ventoAnguloCurrent}")#&field7={None}&field8={None}")
+  requests.post(f"https://api.thingspeak.com/update?api_key=MB4W5VR14OISKTZU&field1='{descricaoCurrent}'&field2='{mainCurrent}'&field3={chuva1h}&field4={umidadeCurrent}&field5={ventoVelocidadeCurrent}&field6={ventoAnguloCurrent}&units=metric&lang={'pt_br'}")#&field7={None}&field8={None}")
   print(infoCurrent)
 
 
 enviar()
 
 while True:
-  #avisar()
+  avisar()
   enviar()
 
   time.sleep(20)
