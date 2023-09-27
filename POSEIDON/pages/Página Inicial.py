@@ -27,7 +27,9 @@ if paginaSelecionada == 'Verificação':
   def interface():
     ## Teste Site ##
     dados = None
-    max = pegarValores(0)[0]['channel']['last_entry_id']
+
+    # pegarValores(0)[0]['channel']['last_entry_id']
+    max = pegarValores(0)[1]['channel']['last_entry_id']
 
     sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
     sl.title('Consulte aqui as informações necessárias')
@@ -46,7 +48,7 @@ if paginaSelecionada == 'Verificação':
 
     except:
       n = 15
-      
+
       dados = pegarValores(n)[0]
       clima = pegarValores(n)[1]
 
@@ -57,12 +59,18 @@ if paginaSelecionada == 'Verificação':
     if dados is not None:
 
       bd = []
-      bdClima = {'Descrição':{}, 'Categoria':{}, 'Umidade':{}, 'Probabilidade de Chuva':{}, 'Vento Velocidade':{}, 'Vento Angulo':{}}
+      bdClima = {'Descrição': {}, 'Categoria': {}, 'Umidade': {},
+                 'Chuva á 1H': {}, 'Vento Velocidade': {}, 'Vento Angulo': {}}
+      bdClimaMin = {'Descrição': {}, 'Umidade': {},
+                    'Chuva á 1H': {}}
+
       horario = []
       horarioMin = []
       horarioClima = []
+      horarioClimaMin = []
 
-      tabGrafico, tabDados, tabClimaRegistrado = sl.tabs(["Gráfico", "Dados", "Clima Registrado"])
+      tabGrafico, tabDados, tabClimaRegistrado = sl.tabs(
+          ["Gráfico", "Dados", "Clima"])
       for numero in range(n):
 
         # Dados dos sensores
@@ -79,30 +87,14 @@ if paginaSelecionada == 'Verificação':
 
         # opção 1
         try:
-          if float(dados['feeds'][numero]['field2']) > 0:
-            bd.append(float(dados['feeds'][numero]['field2']))
+          # debug: ideal-> 0 <= (80 - float(dados['feeds'][numero]['field2'])) <= 80:
+          if 80 - float(dados['feeds'][numero]['field2']) >= 0:
+            bd.append(80 - float(dados['feeds'][numero]['field2']))
           else:
             bd.append(0)
 
         except:
           bd.append(0)
-          
-          
-        # # opção 2 # fica com menos resultados do que os pesquisados se algum valor = 0
-        # try:
-        #   if float(dados['feeds'][numero]['field2']) > 0:
-        #     bd.append(float(dados['feeds'][numero]['field2']))
-
-        #   else: #(implícito na lógica)
-        #   # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-        #     pass
-
-        # except:
-        # # desconsidera medidas menores que 0, já que devem ser erros (no código final, mudar para "menor que a distância mínima detectável do sensor que a gente tá usando")
-        #   pass
-        
-        
-        # Dados do clima
 
         dataClima = clima['feeds'][numero]['created_at']
 
@@ -112,43 +104,87 @@ if paginaSelecionada == 'Verificação':
         horaClima = dataClima[11:19]
 
         horarioClima.append(f'{diaClima}/{mesClima}/{anoClima} {horaClima}')
-          
-        bdClima['Descrição'][horarioClima[numero]] = clima['feeds'][numero]['field1']
-        bdClima['Categoria'][horarioClima[numero]] = clima['feeds'][numero]['field2']
-        bdClima['Umidade'][horarioClima[numero]] = str(clima['feeds'][numero]['field4'])+'%'
-        bdClima['Probabilidade de Chuva'][horarioClima[numero]] = str(clima['feeds'][numero]['field3']) # * 100)+'%'
-        bdClima['Vento Velocidade'][horarioClima[numero]] = str(clima['feeds'][numero]['field5'])+'km/h'
-        bdClima['Vento Angulo'][horarioClima[numero]] = str(clima['feeds'][numero]['field6'])+'°'
+        horarioClimaMin.append(f'{diaClima}/{mesClima} {horaClima}')
 
+        bdClima['Descrição'][horarioClima[numero]
+                             ] = clima['feeds'][numero]['field1']
+        bdClima['Categoria'][horarioClima[numero]
+                             ] = clima['feeds'][numero]['field2']
+        bdClima['Umidade'][horarioClima[numero]] = str(
+            clima['feeds'][numero]['field4'])+' %'
+        bdClima['Chuva á 1H'][horarioClima[numero]] = str(
+            clima['feeds'][numero]['field3'])+' mm'
+        bdClima['Vento Velocidade'][horarioClima[numero]] = str(
+            clima['feeds'][numero]['field5'])+' km/h'
+        bdClima['Vento Angulo'][horarioClima[numero]] = str(
+            clima['feeds'][numero]['field6'])+'°'
+
+        if clima['feeds'][numero]['field1'] == "'rain'":
+          bdClimaMin['Descrição'][horarioClimaMin[numero]] = 'Chuva Registrada'
+        else:
+          bdClimaMin['Descrição'][horarioClimaMin[numero]
+                                  ] = 'Chuva não fichada'
+
+        bdClimaMin['Umidade'][horarioClimaMin[numero]] = str(
+            clima['feeds'][numero]['field4'])+' %'
+        bdClimaMin['Chuva á 1H'][horarioClimaMin[numero]] = str(
+            clima['feeds'][numero]['field3'])+' mm'  # * 100)+'%'
 
       dicionarioDados = {}
       dicionarioDadosMin = {}
-      
-      # dicionarioClima = {'Categoria': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
-      #                    'Descrição': {'data1':f'{"a"}', 'data2': f'{"b"}', 'data3': f'{"c"}', 'data4': f'{"d"}'},
-                   
-      #                     'Visualização': {'data1':1, 'data2': 2, 'data3': 3, 'data4': 4}, # debug: imagens
-                          
-      #                     'Umidade': {'data1':f'{1}%','data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
-      #                     'Probabilidade de Chuva': {'data1':f'{1}%', 'data2': f'{2}%', 'data3': f'{3}%', 'data4': f'{4}%'},
-      #                     'Vento Velocidade': {'data1':f'{1}km/h', 'data2': f'{2}km/h', 'data3': f'{3}km/h', 'data4': f'{4}km/h'},
-      #                     'Vento Angulo': {'data1':f'{1}º', 'data2': f'{2}º', 'data3': f'{3}º', 'data4': f'{4}º'}}
-      
+
       for n in range(0, len(bd)):
         dicionarioDados[str(horario[n])] = bd[n]
         dicionarioDadosMin[str(horarioMin[n])] = bd[n]
 
-      grafico = p.DataFrame({'Data': dicionarioDadosMin.keys(), 'Medição (cm)': dicionarioDadosMin.values()})
+      grafico = p.DataFrame({'Data': dicionarioDadosMin.keys(
+      ), 'Medição (cm)': dicionarioDadosMin.values()})
 
       with tabGrafico:
         sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
+        def corMedia(prob):
+          prob = round(prob * 1.2375)  # vermelho
+          prob2 = round(99 - prob)  # verde
+
+          if prob > 99:
+            prob = 99
+          if prob2 < 0:
+            prob2 = 0
+
+          if len(str(prob)) < 2:
+            add = ''
+
+            while len(str(add)) < 2 - len(str(prob)):
+              add += '0'
+
+            add += f'{prob}'
+
+            prob = add
+
+          if len(str(prob2)) < 2:
+            add = ''
+
+            while len(str(add)) < 2 - len(str(prob2)):
+              add += '0'
+
+            add += f'{prob2}'
+
+            prob2 = add
+
+          hex = f'#{prob}{prob2}00'
+
+          return hex
+
+      sl.markdown(
+          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {corMedia(round(sum(dicionarioDados.values())/len(dicionarioDados), 2))}">{round(sum(dicionarioDados.values())/len(dicionarioDados), 2)} cm</span></h6>''', unsafe_allow_html=True)
+
       with tabDados:
         # dicionarioDados = [str(v)+' cm' for v in dicionarioDados.values()] # tentativa de colocar cm na frente de cada valor (mas data sai do index)
         sl.table(dicionarioDados)
-      
+
       with tabClimaRegistrado:
-        sl.line_chart(bdClima)
+        sl.line_chart(bdClimaMin)
         sl.table(bdClima)
 
       # sl.write(dados)
@@ -236,13 +272,10 @@ if paginaSelecionada == 'Verificação':
             return hex
 
           def recomendar(var):
-            if type(var) == float: # se é float
-              if var > .98:
-                return '(Chuva é certa, coleta não recomendada)'
-              else:
-                return ''
-            
-            else: # (basicamente) se é string
+            if var == 1:  # se var é 100%
+              return '(Chuva é certa, coleta não recomendada)'
+
+            else:  # (basicamente) se é string
               if var == 'Rain':
                 return '(Clima chuvoso, coleta não recomendada)'
               else:
@@ -262,7 +295,7 @@ if paginaSelecionada == 'Verificação':
           <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #990000">{recomendar(descricaoGeral)}</span></h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
           <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
-          <h5 style="height: 0rem;">Vento: {ventoVelocidade} a {ventoAngulo}º</h5>
+          <h5 style="height: 0rem;">Vento: {ventoVelocidade} km/h a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
           # aqui fica o card
