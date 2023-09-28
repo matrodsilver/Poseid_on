@@ -85,13 +85,11 @@ if paginaSelecionada == 'Verificação':
         horario.append(f'{dia}/{mes}/{ano} {hora}')
         horarioMin.append(f'{dia}/{mes} {hora}')
 
-        # opção 1
         try:
-          # debug: ideal-> 0 <= (80 - float(dados['feeds'][numero]['field2'])) <= 80:
-          if 80 - float(dados['feeds'][numero]['field2']) >= 0:
+          if 0 <= (80 - float(dados['feeds'][numero]['field2'])) <= 80:
             bd.append(80 - float(dados['feeds'][numero]['field2']))
           else:
-            bd.append(0)
+            bd.append(80)
 
         except:
           bd.append(0)
