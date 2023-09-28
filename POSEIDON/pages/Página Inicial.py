@@ -92,7 +92,7 @@ if paginaSelecionada == 'Verificação':
             bd.append(80)
 
         except:
-          bd.append(0)
+          bd.append(80)
 
         dataClima = clima['feeds'][numero]['created_at']
 
