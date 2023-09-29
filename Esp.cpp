@@ -12,9 +12,11 @@ UltraSonicDistanceSensor sensorUltrassom(triggerPin, echoPin, maxCm);
 float distancia;
 
 // variáveis referentes ao sensor infravermelho
-const byte sensorInfra = 32;
+const byte sensorInfra = 33;
+const byte sensorInfra2 = 32;
 
 bool infra;
+bool infra2;
 
 // variáveis referentes ao led
 const byte r = 15;
@@ -32,12 +34,12 @@ String request_string;
 String apiKey = "HL7ZT6N5CYHFTCJY";
 
 // listas de componentes
-int out[3] = {r, g, b}; //, 4] = {r, g, b, LED_BUILTIN};
-int in[1] = {sensorInfra};
+int out[3] = {r, g, b};
+int in[2] = {sensorInfra, sensorInfra2};
 
 unsigned int tempo; // variável para marcação do tempo
 
-/*builtin*/
+/*Setup*/
 
 void setup()
 {
@@ -45,7 +47,7 @@ void setup()
   WiFi.disconnect();
   delay(3000);
   Serial.println("START");
-  WiFi.begin("PAJOSIL2", "Margarida1951");
+  WiFi.begin("MatRodNet", "11etrinta");
   while ((!(WiFi.status() == WL_CONNECTED)))
   {
     delay(300);
@@ -61,7 +63,7 @@ void setup()
     pinMode(out[n], OUTPUT);
   }
 
-  for (int n = 0; n < 1; n++)
+  for (int n = 0; n < 2; n++)
   {
     pinMode(in[n], INPUT);
   }
