@@ -16,8 +16,7 @@ def pegarValores():
 
 
 def avisar():
-  if int(pegarValores()['feeds'][0]['field1']) > 50:
-    print('sin')
+  if float(pegarValores()['feeds'][0]['field2']) > 1:
     
     eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
     tadashi = 'x'
@@ -27,7 +26,7 @@ def avisar():
     for usuario in usuarios:  # type:ignore
       pbt = Pushbullet(usuario)
       pbt.push_note(
-          '⚠️Aviso⚠️', '⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠')
+          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {int(pegarValores()["feeds"][0]["field2"])} cm')
 
 
 def enviar():
