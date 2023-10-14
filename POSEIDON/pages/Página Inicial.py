@@ -86,13 +86,13 @@ if paginaSelecionada == 'Verificação':
         horarioMin.append(f'{dia}/{mes} {hora}')
 
         try:
-          if 0 <= (80 - float(dados['feeds'][numero]['field2'])) <= 80:
-            bd.append(80 - float(dados['feeds'][numero]['field2']))
+          if 0 <= (57 - float(dados['feeds'][numero]['field2'])) <= 57:
+            bd.append(57 - float(dados['feeds'][numero]['field2']))
           else:
-            bd.append(80)
+            bd.append(57)
 
         except:
-          bd.append(80)
+          bd.append(57)
 
         dataClima = clima['feeds'][numero]['created_at']
 
