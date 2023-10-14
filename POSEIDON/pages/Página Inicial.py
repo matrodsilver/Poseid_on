@@ -142,7 +142,7 @@ if paginaSelecionada == 'Verificação':
         sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
         def corMedia(prob):
-          prob = round(prob * 1.2375)  # vermelho
+          prob = round(prob * 1.7368421052631578947368421052632)  # vermelho
           prob2 = round(99 - prob)  # verde
 
           if prob > 99:
