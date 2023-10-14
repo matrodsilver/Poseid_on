@@ -26,7 +26,7 @@ def avisar():
     for usuario in usuarios:  # type:ignore
       pbt = Pushbullet(usuario)
       pbt.push_note(
-          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {int(pegarValores()["feeds"][0]["field2"])} cm')
+          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {float(pegarValores()["feeds"][0]["field2"])} cm')
 
 
 def enviar():
