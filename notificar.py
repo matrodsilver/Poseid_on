@@ -16,7 +16,7 @@ def pegarValores():
 
 
 def avisar():
-  if float(pegarValores()['feeds'][0]['field2']) > 1:
+  if float(pegarValores()['feeds'][0]['field2']) < 30:
     
     eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
     tadashi = 'x'
@@ -41,7 +41,7 @@ def enviar():
   descricaoCurrent = infoCurrent['weather'][0]['description']
   mainCurrent = infoCurrent['weather'][0]['main']
   umidadeCurrent = infoCurrent['main']['humidity']
-  chuva1h = 0 #infoCurrent['list'][0]['pop'] # não tem pop nem rain1h
+  chuva1h = 0 #infoCurrent['list'][0]['pop'] #  pop / rain1h
   ventoVelocidadeCurrent = infoCurrent['wind']['speed']
   ventoAnguloCurrent = infoCurrent['wind']['deg']
   
