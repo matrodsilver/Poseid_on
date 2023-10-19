@@ -1,6 +1,7 @@
 import requests
 import streamlit as sl
 import pandas as p
+from colormap import hex2rgb, rgb2hex
 
 
 def pegarValores(n):
@@ -80,19 +81,19 @@ if paginaSelecionada == 'Verificação':
         dia = dataBR[8:10]
         mes = dataBR[5:7]
         ano = dataBR[:4]
-        hora = dataBR[11:19]
+        hora = str(int(dataBR[11:13])-1) + dataBR[13:19]
 
         horario.append(f'{dia}/{mes}/{ano} {hora}')
         horarioMin.append(f'{dia}/{mes} {hora}')
 
         try:
-          if 0 <= (57 - float(dados['feeds'][numero]['field2'])) <= 57:
+          if 0 <= (57 - float(dados['feeds'][numero]['field2'])) <= 38:
             bd.append(57 - float(dados['feeds'][numero]['field2']))
           else:
-            bd.append(57)
+            bd.append(38)
 
         except:
-          bd.append(57)
+          bd.append(38)
 
         dataClima = clima['feeds'][numero]['created_at']
 
@@ -141,41 +142,45 @@ if paginaSelecionada == 'Verificação':
       with tabGrafico:
         sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
-        def corMedia(prob):
-          prob = round(prob * 1.7368421052631578947368421052632)  # vermelho
-          prob2 = round(99 - prob)  # verde
+        # def corMedia(prob):
+        #   prob = round(prob * 1.7368421052631578947368421052632)  # vermelho
+        #   prob2 = round(99 - prob)  # verde
 
-          if prob > 99:
-            prob = 99
-          if prob2 < 0:
-            prob2 = 0
+        #   if prob > 99:
+        #     prob = 99
+        #   if prob2 < 0:
+        #     prob2 = 0
 
-          if len(str(prob)) < 2:
-            add = ''
+        #   if len(str(prob)) < 2:
+        #     add = ''
 
-            while len(str(add)) < 2 - len(str(prob)):
-              add += '0'
+        #     while len(str(add)) < 2 - len(str(prob)):
+        #       add += '0'
 
-            add += f'{prob}'
+        #     add += f'{prob}'
 
-            prob = add
+        #     prob = add
 
-          if len(str(prob2)) < 2:
-            add = ''
+        #   if len(str(prob2)) < 2:
+        #     add = ''
 
-            while len(str(add)) < 2 - len(str(prob2)):
-              add += '0'
+        #     while len(str(add)) < 2 - len(str(prob2)):
+        #       add += '0'
 
-            add += f'{prob2}'
+        #     add += f'{prob2}'
 
-            prob2 = add
+        #     prob2 = add
 
-          hex = f'#{prob}{prob2}00'
+        #   hex = f'#{prob}{prob2}00'
 
-          return hex
+        #   return hex
 
+      Media = int( round( sum( dicionarioDados.values())/ len( dicionarioDados)))
+      
+      r, g, b = int(round(Media*6.7105263157894736842105263157895)), int(round(255 - Media*6.7105263157894736842105263157895)), 0
+      
       sl.markdown(
-          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {corMedia(round(sum(dicionarioDados.values())/len(dicionarioDados), 2))}">{round(sum(dicionarioDados.values())/len(dicionarioDados), 2)} cm</span></h6>''', unsafe_allow_html=True)
+          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {rgb2hex(r, g, b)}">{Media} cm</span></h6>''', unsafe_allow_html=True) # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
 
       with tabDados:
         # dicionarioDados = [str(v)+' cm' for v in dicionarioDados.values()] # tentativa de colocar cm na frente de cada valor (mas data sai do index)
@@ -236,39 +241,41 @@ if paginaSelecionada == 'Verificação':
           ano = data[0:4]
           hora = data[11:16]
 
-          def cor(prob):
-            prob = round(prob * 100)
-            prob2 = round(99 - prob)
+          # def cor(prob):
+          #   prob = round(prob * 100)
+          #   prob2 = round(99 - prob)
 
-            if prob > 99:
-              prob = 99
-            if prob2 < 0:
-              prob2 = 0
+          #   if prob > 99:
+          #     prob = 99
+          #   if prob2 < 0:
+          #     prob2 = 0
 
-            if len(str(prob)) < 2:
-              add = ''
+          #   if len(str(prob)) < 2:
+          #     add = ''
 
-              while len(str(add)) < 2 - len(str(prob)):
-                add += '0'
+          #     while len(str(add)) < 2 - len(str(prob)):
+          #       add += '0'
 
-              add += f'{prob}'
+          #     add += f'{prob}'
 
-              prob = add
+          #     prob = add
 
-            if len(str(prob2)) < 2:
-              add = ''
+          #   if len(str(prob2)) < 2:
+          #     add = ''
 
-              while len(str(add)) < 2 - len(str(prob2)):
-                add += '0'
+          #     while len(str(add)) < 2 - len(str(prob2)):
+          #       add += '0'
 
-              add += f'{prob2}'
+          #     add += f'{prob2}'
 
-              prob2 = add
+          #     prob2 = add
 
-            hex = f'#{prob}{prob2}00'
+          #   hex = f'#{prob}{prob2}00'
 
-            return hex
+          #   return hex
 
+          r, g, b = int(round(probabilidadeDeChuva * 255)), 255 - int(round(probabilidadeDeChuva * 255)), 0
+          
           def recomendar(var):
             if var == 1:  # se var é 100%
               return '(Chuva é certa, coleta não recomendada)'
@@ -290,9 +297,9 @@ if paginaSelecionada == 'Verificação':
           card += f'''<h3 style="height: .0rem;">{hora}</h3>
           <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
-          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #990000">{recomendar(descricaoGeral)}</span></h5>
+          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #FF0000">{recomendar(descricaoGeral)}</span></h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {rgb2hex(r, g, b)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} km/h a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
