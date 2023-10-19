@@ -1,6 +1,7 @@
 import requests
 import streamlit as sl
 import pandas as p
+import colormap
 from colormap import rgb2hex
 
 
