@@ -1,8 +1,6 @@
 import requests
 import streamlit as sl
 import pandas as p
-import colormap
-from colormap import rgb2hex
 
 
 def pegarValores(n):
@@ -180,8 +178,10 @@ if paginaSelecionada == 'Verificação':
       
       r, g, b = int(round(Media*6.7105263157894736842105263157895)), int(round(255 - Media*6.7105263157894736842105263157895)), 0
       
+      hex = "#%02x%02x%02X" % (r, g, b)
+      
       sl.markdown(
-          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {rgb2hex(r, g, b)}">{Media} cm</span></h6>''', unsafe_allow_html=True) # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
+          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {hex}">{Media} cm</span></h6>''', unsafe_allow_html=True) # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
 
       with tabDados:
         # dicionarioDados = [str(v)+' cm' for v in dicionarioDados.values()] # tentativa de colocar cm na frente de cada valor (mas data sai do index)
@@ -277,6 +277,8 @@ if paginaSelecionada == 'Verificação':
 
           r, g, b = int(round(probabilidadeDeChuva * 255)), 255 - int(round(probabilidadeDeChuva * 255)), 0
           
+          hex = "#%02x%02x%02X" % (r, g, b)
+          
           def recomendar(var):
             if var == 1:  # se var é 100%
               return '(Chuva é certa, coleta não recomendada)'
@@ -300,7 +302,7 @@ if paginaSelecionada == 'Verificação':
           <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
           <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #FF0000">{recomendar(descricaoGeral)}</span></h5>
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {rgb2hex(r, g, b)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {hex}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} km/h a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
