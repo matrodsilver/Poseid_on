@@ -1,7 +1,7 @@
 import requests
 import streamlit as sl
 import pandas as p
-from colormap import hex2rgb, rgb2hex
+from colormap import rgb2hex
 
 
 def pegarValores(n):
