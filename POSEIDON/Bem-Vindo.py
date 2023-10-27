@@ -35,8 +35,6 @@ sl.markdown('''
     O projeto "Poseidon" não é apenas uma ideia... é o começo de uma revolução. Ao combinar tecnologia, inovação e colaboração, estamos redefinindo a maneira como nossas cidades enfrentam os desafios das águas das chuvas. Muito obrigado por nos acompanhar hoje. Juntos, estamos construindo cidades mais seguras, limpas e conectadas.
     
     <h6 style="height: 2rem"></h6>
-''', unsafe_allow_html=True)
-
-sl.markdown(f'''
-            <h6 style="color: #00AABB">Mais sobre a composição do software utilizado no <a style="color: #0011FF" href="https://github.com/matrodsilver/Site">GitHub</a> do projeto</h6>
+    
+    <h6 style="color: #00AABB">Mais sobre a composição do software utilizado no <a style="color: #0011FF" href="https://github.com/matrodsilver/Site">GitHub</a> do projeto</h6>
 ''', unsafe_allow_html=True)
