@@ -4,7 +4,7 @@ sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/b
 
 # imagem levemente maior: https://i.imgur.com/xczvDjR.png
 
-sl.markdown('**<h2 style="height: 50px; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
+sl.markdown('**<h2 style="height: 60px; color: #3b8dbf;">Seja Bem Vindo ao sistema POSEID<span style="color: #6ee6c0;">ON</span>!</h2>**', unsafe_allow_html=True)
 sl.markdown('''
     <div class="card border-0" style="height: 20rem; width:24rem; background-color: #00007d;">
         <img style="height: 20rem; width:24rem;" class="card-img-top" src="https://i.imgur.com/xPWdn90.png" alt="POSEID.ON">
@@ -33,4 +33,10 @@ sl.markdown('''
     <h3>Conclusão</h3>
                 
     O projeto "Poseidon" não é apenas uma ideia... é o começo de uma revolução. Ao combinar tecnologia, inovação e colaboração, estamos redefinindo a maneira como nossas cidades enfrentam os desafios das águas das chuvas. Muito obrigado por nos acompanhar hoje. Juntos, estamos construindo cidades mais seguras, limpas e conectadas.
+    
+    <h6 style="height: 2rem"></h6>
+''', unsafe_allow_html=True)
+
+sl.markdown(f'''
+            <h6 style="color: #00AABB">Mais sobre a composição do software utilizado no <a style="color: #0011FF" href="https://github.com/matrodsilver/Site">GitHub</a> do projeto</h6>
 ''', unsafe_allow_html=True)
