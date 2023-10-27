@@ -1,6 +1,7 @@
 import requests
 import streamlit as sl
 import pandas as p
+# from colormap import rgb2hex
 
 
 def pegarValores(n):
@@ -8,14 +9,19 @@ def pegarValores(n):
   urlDados = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
   urlClima = f'https://api.thingspeak.com/channels/2244673/feeds.json?api_key=FOKGIHJ79MUZHIFW&results={n}'
 
+  urlSim = 'https://api.thingspeak.com/channels/2316505/feeds.json?results=2' # "results" em branco resulta em todos os dados
+
   respostaDados = requests.get(urlDados)
   respostaClima = requests.get(urlClima)
 
-  if respostaDados.status_code == 200:
-    return [respostaDados.json(), respostaClima.json()]
+  respostaSim = requests.get(urlSim)
+
+  if respostaDados.status_code == 200 and respostaClima.status_code == 200 and respostaSim.status_code == 200:
+
+    return [respostaDados.json(), respostaClima.json(), respostaSim.json()] # [medidas, clima, dados simulando outros sistemas Poseid.on]
   else:
     print('Erro na requisição')
-    return {}
+    return [respostaDados.json(), respostaClima.json(), respostaSim.json()] # None
 
 
 sl.sidebar.title('Menu')
@@ -25,10 +31,8 @@ paginaSelecionada = sl.sidebar.selectbox(
 
 if paginaSelecionada == 'Verificação':
   def interface():
-    ## Teste Site ##
-    dados = None
+    volumes = None
 
-    # pegarValores(0)[0]['channel']['last_entry_id']
     max = pegarValores(0)[1]['channel']['last_entry_id']
 
     sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
@@ -43,56 +47,61 @@ if paginaSelecionada == 'Verificação':
       if n > max or n < 1:
         raise Exception('Número fora de alcance')
 
-      dados = pegarValores(n)[0]
-      clima = pegarValores(n)[1]
+      volumes = pegarValores(n)[0] # dados do volume do sistema
+      clima = pegarValores(n)[1] # dados do clima no local do sistema durante o envio de dados
 
     except:
       n = 15
 
-      dados = pegarValores(n)[0]
+      volumes = pegarValores(n)[0]
       clima = pegarValores(n)[1]
 
       sl.markdown(f'''<h6 style ="height: 0rem; color: #808080; ">Digite um número de 1 a {max}</h6>
                   <h6 style ="height: 0rem; color: #808080; ">Exibindo os 15 resultados mais recentes</h6>''', unsafe_allow_html=True)
 
     # teste condicional de funcionamento
-    if dados is not None:
+    if volumes is not None:
 
-      bd = []
+      bdVolumes = [] # banco de dados com valores dos volumese respectivas datas
       bdClima = {'Descrição': {}, 'Categoria': {}, 'Umidade': {},
                  'Chuva á 1H': {}, 'Vento Velocidade': {}, 'Vento Angulo': {}}
-      bdClimaMin = {'Descrição': {}, 'Umidade': {},
-                    'Chuva á 1H': {}}
+      
+      bdClimaGrafico = {'Descrição': {}, 'Umidade': {},
+                        'Chuva á 1H': {}} # banco de dados para exibição no gráfico
 
       horario = []
-      horarioMin = []
+      horarioGrafico = []
       horarioClima = []
-      horarioClimaMin = []
+      horarioClimaGráfico = []
 
-      tabGrafico, tabDados, tabClimaRegistrado = sl.tabs(
-          ["Gráfico", "Dados", "Clima"])
+      tabGrafico, tabTabela, tabClimaRegistrado, tabBueiros = sl.tabs(
+          ["Gráfico", "Tabela", "Clima", "Estado atual dos sistemas"])
       for numero in range(n):
 
-        # Dados dos sensores
-
-        dataBR = dados['feeds'][numero]['created_at']
+        # __Dados dos sensores__
+        dataBR = volumes['feeds'][numero]['created_at']
 
         dia = dataBR[8:10]
         mes = dataBR[5:7]
         ano = dataBR[:4]
-        hora = str(int(dataBR[11:13])-1) + dataBR[13:19]
+        hora = str(int(dataBR[11:13])-1) + dataBR[13:19] # arrumando fuso-horário
 
         horario.append(f'{dia}/{mes}/{ano} {hora}')
-        horarioMin.append(f'{dia}/{mes} {hora}')
+        horarioGrafico.append(f'{dia}/{mes} {hora}')
 
         try:
-          if 0 <= (57 - float(dados['feeds'][numero]['field2'])) <= 57:
-            bd.append(57 - float(dados['feeds'][numero]['field2']))
+          valorDoVolume = float(volumes['feeds'][numero]['field2'])
+        except:
+          valorDoVolume = 38
+
+        try:
+          if 0 <= (57 - valorDoVolume) <= 38:
+            bdVolumes.append(57 - valorDoVolume)
           else:
-            bd.append(0)
+            bdVolumes.append(38)
 
         except:
-          bd.append(57)
+          bdVolumes.append(38)
 
         dataClima = clima['feeds'][numero]['created_at']
 
@@ -102,7 +111,7 @@ if paginaSelecionada == 'Verificação':
         horaClima = dataClima[11:19]
 
         horarioClima.append(f'{diaClima}/{mesClima}/{anoClima} {horaClima}')
-        horarioClimaMin.append(f'{diaClima}/{mesClima} {horaClima}')
+        horarioClimaGráfico.append(f'{diaClima}/{mesClima} {horaClima}')
 
         bdClima['Descrição'][horarioClima[numero]
                              ] = clima['feeds'][numero]['field1']
@@ -118,74 +127,103 @@ if paginaSelecionada == 'Verificação':
             clima['feeds'][numero]['field6'])+'°'
 
         if clima['feeds'][numero]['field1'] == "'rain'":
-          bdClimaMin['Descrição'][horarioClimaMin[numero]] = 'Chuva Registrada'
+          bdClimaGrafico['Descrição'][horarioClimaGráfico[numero]
+                                      ] = 'Chuva Registrada'
         else:
-          bdClimaMin['Descrição'][horarioClimaMin[numero]
-                                  ] = 'Chuva não fichada'
+          bdClimaGrafico['Descrição'][horarioClimaGráfico[numero]
+                                      ] = 'Chuva não fichada'
 
-        bdClimaMin['Umidade'][horarioClimaMin[numero]] = str(
+        bdClimaGrafico['Umidade'][horarioClimaGráfico[numero]] = str(
             clima['feeds'][numero]['field4'])+' %'
-        bdClimaMin['Chuva á 1H'][horarioClimaMin[numero]] = str(
+        bdClimaGrafico['Chuva á 1H'][horarioClimaGráfico[numero]] = str(
             clima['feeds'][numero]['field3'])+' mm'  # * 100)+'%'
 
-      dicionarioDados = {}
-      dicionarioDadosMin = {}
+      dadosGerais = {}
+      dadosGrafico = {}
 
-      for n in range(0, len(bd)):
-        dicionarioDados[str(horario[n])] = bd[n]
-        dicionarioDadosMin[str(horarioMin[n])] = bd[n]
+      for n in range(0, len(bdVolumes)):
+        dadosGerais[str(horario[n])] = bdVolumes[n]
+        dadosGrafico[str(horarioGrafico[n])] = bdVolumes[n]
 
-      grafico = p.DataFrame({'Data': dicionarioDadosMin.keys(
-      ), 'Medição (cm)': dicionarioDadosMin.values()})
+      grafico = p.DataFrame({'Data': dadosGrafico.keys(
+      ), 'Medição (cm)': dadosGrafico.values()})
 
       with tabGrafico:
         sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
-        def corMedia(prob):
-          prob = round(prob * 1.7368421052631578947368421052632)  # vermelho
-          prob2 = round(99 - prob)  # verde
+        Media = int(round(sum(dadosGerais.values()) / len(dadosGerais)))
 
-          if prob > 99:
-            prob = 99
-          if prob2 < 0:
-            prob2 = 0
+        r, g, b = int(round(Media*6.7105263157894736842105263157895)
+                      ), int(round(255 - Media*6.7105263157894736842105263157895)), 0
 
-          if len(str(prob)) < 2:
-            add = ''
+        hex = "#%02x%02x%02X" % (r, g, b)
 
-            while len(str(add)) < 2 - len(str(prob)):
-              add += '0'
+        sl.markdown(
+            f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {hex}">{Media} cm de volume ocupado</span></h6>''', unsafe_allow_html=True)  # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
 
-            add += f'{prob}'
+      with tabTabela:
+        # dadosGerais = {distancia * 2.64 for distancia in dadosGerais.values()}
 
-            prob = add
-
-          if len(str(prob2)) < 2:
-            add = ''
-
-            while len(str(add)) < 2 - len(str(prob2)):
-              add += '0'
-
-            add += f'{prob2}'
-
-            prob2 = add
-
-          hex = f'#{prob}{prob2}00'
-
-          return hex
-
-      sl.markdown(
-          f'''<h6 style="height: 2rem; color: #808080; ">Média: <span style="height: 0rem; color: {corMedia(round(sum(dicionarioDados.values())/len(dicionarioDados), 2))}">{round(sum(dicionarioDados.values())/len(dicionarioDados), 2)} cm</span></h6>''', unsafe_allow_html=True)
-
-      with tabDados:
-        # dicionarioDados = [str(v)+' cm' for v in dicionarioDados.values()] # tentativa de colocar cm na frente de cada valor (mas data sai do index)
-        sl.table(dicionarioDados)
+        sl.table(dadosGerais)
 
       with tabClimaRegistrado:
-        sl.line_chart(bdClimaMin)
+        sl.line_chart(bdClimaGrafico)
         sl.table(bdClima)
 
-      # sl.write(dados)
+      with tabBueiros:
+        volumesSim = pegarValores(1)[2]  # 1 é um valor arbitrário, pois a função sempre retornará o valor máximo
+        
+        atual1 = float(volumesSim['feeds'][len(volumesSim)-1]['field1'])
+        atual2 = float(volumesSim['feeds'][len(volumesSim)-1]['field2'])
+        atual3 = float(volumesSim['feeds'][len(volumesSim)-1]['field3'])
+
+        # media1 = 0
+        # media2 = 0
+        # media3 = 0
+        
+        # for valor in range(len(volumesSim)):
+        #   media1 += float(volumesSim['feeds'][valor]['field1'])
+        #   media2 += float(volumesSim['feeds'][valor]['field2'])
+        #   media3 += float(volumesSim['feeds'][valor]['field3'])
+        #
+        # media1 /= len(volumesSim)
+        # media2 /= len(volumesSim)
+        # media3 /= len(volumesSim)
+        
+        atual = {str(atual1): "CAMPINAS", str(atual2): "SÃO PAULO", str(atual3): "ALPHAVILLE", str(round(bdVolumes[-1], 2)): "ACLIMAÇÃO"}
+        ordemAtual = sorted(atual)
+
+        decrescente = []
+
+        for chave in atual.keys():
+          decrescente.append(float(chave))
+
+        decrescente = sorted(decrescente)
+
+        # medias = sorted({str(media1): "CAMPINAS", str(media2): "SÃO PAULO", str(media3): "ALPHAVILLE", str(Media): "ACLIMAÇÃO"})
+        # ordemMedias = sorted(medias)
+
+        r1, g1, b1 = round(decrescente[0] * 6.7105263157894736842105263157895), round(255 - float(decrescente[0]) * 6.7105263157894736842105263157895), 0
+        hex1 = "#%02x%02x%02X" % (r1, g1, b1)
+
+        r2, g2, b2 = round(decrescente[1] * 6.7105263157894736842105263157895), round(255 - decrescente[1] * 6.7105263157894736842105263157895), 0
+        hex2 = "#%02x%02x%02X" % (r2, g2, b2)
+
+        r3, g3, b3 = round(decrescente[2] * 6.7105263157894736842105263157895), round(255 - decrescente[2] * 6.7105263157894736842105263157895), 0
+        hex3 = "#%02x%02x%02X" % (r3, g3, b3)
+
+        r4, g4, b4 = round(decrescente[3] * 6.7105263157894736842105263157895), round(
+          255 - decrescente[3] * 6.7105263157894736842105263157895), 0
+        hex4 = "#%02x%02x%02X" % (r4, g4, b4)
+
+
+        sl.markdown(
+          f'''<h4 style="height: 3rem; color: #606060;">Prioridade atual dos sistemas Poseid.on:</h4>
+          <h6 style="height: 2rem; color: #000000;">{atual[str(decrescente[0])]} em <span style="height: 0rem; color: {hex4}">{decrescente[3]}cm</span> de volume ocupado</h6>
+          <h6 style="height: 2rem; color: #000000;">{atual[str(decrescente[1])]} em <span style="height: 0rem; color: {hex3}">{decrescente[2]}cm</span> de volume ocupado</h6>
+          <h6 style="height: 2rem; color: #000000;">{atual[str(decrescente[2])]} em <span style="height: 0rem; color: {hex2}">{decrescente[1]}cm</span> de volume ocupado</h6>
+          <h6 style="height: 2rem; color: #000000;">{atual[str(decrescente[3])]} em <span style="height: 0rem; color: {hex1}">{decrescente[0]}cm</span> de volume ocupado</h6>''', unsafe_allow_html=True)  # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
+
 
     ## Clima ##
     token = '4127401294a510735af86031ebc9697b'
@@ -219,7 +257,7 @@ if paginaSelecionada == 'Verificação':
           dadosClima = info['list'][n]['weather'][0]
 
           data = info['list'][n]['dt_txt']
-          descricaoGeral = dadosClima['main']
+          descricaoGeneralizada = dadosClima['main']
           descricaoFiltrada = dadosClima['description']
           ventoVelocidade = info['list'][n]['wind']['speed']
           ventoAngulo = info['list'][n]['wind']['deg']
@@ -228,54 +266,23 @@ if paginaSelecionada == 'Verificação':
 
           icone = dadosClima["icon"]
 
-          # visibilidade =
-          # nuvens =
-
           dia = data[8:10]
           mes = data[5:7]
           ano = data[0:4]
           hora = data[11:16]
 
-          def cor(prob):
-            prob = round(prob * 100)
-            prob2 = round(99 - prob)
+          r, g, b = int(round(probabilidadeDeChuva * 255)), 255 - \
+              int(round(probabilidadeDeChuva * 255)), 0
 
-            if prob > 99:
-              prob = 99
-            if prob2 < 0:
-              prob2 = 0
-
-            if len(str(prob)) < 2:
-              add = ''
-
-              while len(str(add)) < 2 - len(str(prob)):
-                add += '0'
-
-              add += f'{prob}'
-
-              prob = add
-
-            if len(str(prob2)) < 2:
-              add = ''
-
-              while len(str(add)) < 2 - len(str(prob2)):
-                add += '0'
-
-              add += f'{prob2}'
-
-              prob2 = add
-
-            hex = f'#{prob}{prob2}00'
-
-            return hex
+          hex = "#%02x%02x%02X" % (r, g, b)
 
           def recomendar(var):
             if var == 1:  # se var é 100%
-              return '(Chuva é certa, coleta não recomendada)'
+              return '<h6 style="height: 0rem; color: #FF0000">Chuva é certa, coleta não recomendada</h6>'
 
             else:  # (basicamente) se é string
               if var == 'Rain':
-                return '(Clima chuvoso, coleta não recomendada)'
+                return '<h6 style="height: 0rem; color: #FF0000">Clima chuvoso, coleta não recomendada</h6>'
               else:
                 return ''
 
@@ -289,12 +296,12 @@ if paginaSelecionada == 'Verificação':
 
           card += f'''<h3 style="height: .0rem;">{hora}</h3>
           <h6 class="card-text" style="height: 0rem;">‾‾‾‾‾‾‾‾</h6>
-          <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeral}" style="width: 10rem; height: 10rem;">
-          <h5 style="height: 0rem;">{descricaoGeral}: {descricaoFiltrada} <span style="height: 0rem; color: #990000">{recomendar(descricaoGeral)}</span></h5>
+          <img class="card-img-top" src="http://openweathermap.org/img/wn/{icone}@2x.png" alt="{descricaoGeneralizada}" style="width: 10rem; height: 10rem;">
+          <h5 style="height: 0rem;">{descricaoGeneralizada}: {descricaoFiltrada}</h5>{recomendar(descricaoGeneralizada)}
           <h5 style="height: 0rem;">Umidade: {umidade}%</h5>
-          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {cor(probabilidadeDeChuva)}">{round(probabilidadeDeChuva * 100)}% {recomendar(probabilidadeDeChuva)}</span></h5>
+          <h5 style="height: 0rem;">Probabilidade de Precipitação: <span style="height: 0rem; color: {hex}">{round(probabilidadeDeChuva * 100)}%</span>{recomendar(probabilidadeDeChuva)}</h5>
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} km/h a {ventoAngulo}º</h5>
-          <h6 style="height: 0rem;"></h6>'''
+          <h6 style="height: 0rem;"></h6>''' # debbug: linha 2 e 8 do card (wtf?)
 
           # aqui fica o card
           sl.markdown(card, unsafe_allow_html=True)
