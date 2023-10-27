@@ -17,16 +17,16 @@ def pegarValores():
 
 def avisar():
   if float(pegarValores()['feeds'][0]['field2']) < 30:
-    
+
     eu = 'o.9CYuBlpove3ErChfkLDjcmkNcjquJ1oz'
     tadashi = 'x'
 
     usuarios = [eu]
-    
-    for usuario in usuarios:  # type:ignore
+
+    for usuario in usuarios:
       pbt = Pushbullet(usuario)
       pbt.push_note(
-          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {float(pegarValores()["feeds"][0]["field2"])} cm')
+          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {57- float(pegarValores()["feeds"][0]["field2"])} cm')
 
 
 def enviar():
@@ -41,17 +41,17 @@ def enviar():
   descricaoCurrent = infoCurrent['weather'][0]['description']
   mainCurrent = infoCurrent['weather'][0]['main']
   umidadeCurrent = infoCurrent['main']['humidity']
-  chuva1h = 0 #infoCurrent['list'][0]['pop'] #  pop / rain1h
   ventoVelocidadeCurrent = infoCurrent['wind']['speed']
   ventoAnguloCurrent = infoCurrent['wind']['deg']
-  
-  # icone = infoCurrent['weather'][0]['icon']
 
-  requests.post(f"https://api.thingspeak.com/update?api_key=MB4W5VR14OISKTZU&field1='{descricaoCurrent}'&field2='{mainCurrent}'&field3={chuva1h}&field4={umidadeCurrent}&field5={ventoVelocidadeCurrent}&field6={ventoAnguloCurrent}&units=metric&lang={'pt_br'}")#&field7={None}&field8={None}")
-  print(infoCurrent)
+  requests.post(
+      f"https://api.thingspeak.com/update?api_key=MB4W5VR14OISKTZU&field1='{descricaoCurrent}'&field2='{mainCurrent}'&field3={chuva1h}&field4={umidadeCurrent}&field5={ventoVelocidadeCurrent}&field6={ventoAnguloCurrent}&units=metric&lang={'pt_br'}")
 
+  print(f'''__Valores atuais__
+        Clima: {mainCurrent} ({descricaoCurrent})
+        Umidade: {umidadeCurrent}
+        Vento: {ventoVelocidadeCurrent} - {ventoAnguloCurrent}''')
 
-enviar()
 
 while True:
   avisar()
