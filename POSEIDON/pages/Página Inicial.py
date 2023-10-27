@@ -91,7 +91,7 @@ if paginaSelecionada == 'Verificação':
         try:
           valorDoVolume = float(volumes['feeds'][numero]['field2'])
         except:
-          valorDoVolume = 38
+          valorDoVolume = 0
 
         try:
           if 0 <= (57 - valorDoVolume) <= 38:
