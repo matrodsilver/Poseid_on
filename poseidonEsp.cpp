@@ -45,8 +45,7 @@ const byte b = 5;
 // variáveis da biblioteca de wifi
 WiFiClient client;
 
-// <token> é substituído pelo valor do token no código
-String thingSpeakAddress = "<token>";
+String thingSpeakAddress = "<token>";  // <token> é substituído pelo valor do token no código
 String apiKey = "<token>";
 String tsfield1Name;
 String request_string;
@@ -55,13 +54,12 @@ String request_string;
 int out[3] = {r, g, b};
 int inp[3] = {sensorInfra, sensorInfra2, sensorAgua}; // de ultrassom já é inicializado pela biblioteca
 
-unsigned int tempo; // variável para marcação do tempo
+unsigned int tempo;  // variável para marcação do tempo
 
 /*Setup*/
-
 void setup()
 {
-  Serial.begin(9600); // iniciando serial
+  Serial.begin(9600);  // iniciando serial
 
   // conexão do wifi
   WiFi.disconnect();
@@ -76,12 +74,12 @@ void setup()
   Serial.println("Conectado");
 
   // prontificação
-  for (int n = 0; n < 3; n++) // enquanto n < tamanhoDaLista out
+  for (int n = 0; n < 3; n++)  // enquanto n < tamanhoDaLista out
   {
     pinMode(out[n], OUTPUT);
   }
 
-  for (int n = 0; n < 3; n++) // enquanto n < tamanhoDaLista inp
+  for (int n = 0; n < 3; n++)  // enquanto n < tamanhoDaLista inp
   {
     pinMode(inp[n], INPUT);
   }
@@ -89,7 +87,7 @@ void setup()
 
 void loop()
 {
-
+  // a cada 500ms o sensor de distância atualiza o led, trata esses dados e printa o novo valor se necessário
   if (tempo % 500 == 0)
   {
     distancia = sensorUltrassom.measureDistanceCm();
@@ -143,11 +141,12 @@ void loop()
     analogWrite(r, 255 - map(distancia, 19, 57, 0, 255));
     analogWrite(g, map(distancia, 19, 57, 0, 255));
 
+    // a cada 20s as informações dos sensores são enviadas para o banco de dados
     if (tempo % 20000 == 0)
     {
       if (client.connect("api.thingspeak.com", 80))
       {
-        digitalWrite(b, HIGH);
+        digitalWrite(b, HIGH);  // led azul liga enquanto isso acontece
 
         infra = !digitalRead(sensorInfra);
         infra2 = !digitalRead(sensorInfra2);
@@ -203,11 +202,12 @@ void loop()
 
         Serial.println("Enviado com sucesso B^)");
 
+        delay(250);  // delay para melhor vizualização do led azul
         digitalWrite(b, LOW);
       }
       else
       {
-        Serial.println("Deu ruim fml");
+        Serial.println("Erro");
 
         delay(500);
         tempo += 500;
