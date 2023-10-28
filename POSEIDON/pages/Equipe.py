@@ -1,3 +1,5 @@
+# Página estilizada usando HTML e a biblioteca streamlit com informações dos participantes do projeto
+
 import streamlit as sl
 
 sl.markdown(f'''
