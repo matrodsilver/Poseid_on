@@ -116,17 +116,23 @@ if paginaSelecionada == 'Verificação':
           horarioClimaGráfico.append(f'{diaClima}/{mesClima} {horaClima}')
 
           bdClima['Descrição'][horarioClima[numero]
-                              ] = clima['feeds'][numero]['field1']
+                              ] = clima['feeds'][numero]['field1'][1:-1]
+          
           bdClima['Categoria'][horarioClima[numero]
-                              ] = clima['feeds'][numero]['field2']
+                              ] = clima['feeds'][numero]['field2'][1:-1]
+          
           bdClima['Umidade'][horarioClima[numero]] = str(
               clima['feeds'][numero]['field4'])+' %'
+          
           # bdClima['Chuva á 1H'][horarioClima[numero]] = str(
-          #     clima['feeds'][numero]['field3'])+' mm'
+          #     clima['feeds'][numero]['field3'])+' mm'  # deprecated
+          
           bdClima['Vento Velocidade'][horarioClima[numero]] = str(
               clima['feeds'][numero]['field5'])+' km/h'
+          
           bdClima['Vento Angulo'][horarioClima[numero]] = str(
               clima['feeds'][numero]['field6'])+'°'
+
 
           if clima['feeds'][numero]['field2'] == "'Rain'":
             bdClimaGrafico['Descrição'][horarioClimaGráfico[numero]
@@ -137,8 +143,9 @@ if paginaSelecionada == 'Verificação':
 
           bdClimaGrafico['Umidade'][horarioClimaGráfico[numero]] = str(
               clima['feeds'][numero]['field4'])+' %'
+          
           # bdClimaGrafico['Chuva á 1H'][horarioClimaGráfico[numero]] = str(
-          #     clima['feeds'][numero]['field3'])+' mm'
+          #     clima['feeds'][numero]['field3'])+' mm'  # deprecated
 
         dadosGerais = {}
         dadosGrafico = {}
