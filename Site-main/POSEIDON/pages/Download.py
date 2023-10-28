@@ -4,13 +4,19 @@ import requests
 import streamlit as sl
 from datetime import date
 from reportlab.lib import colors
+from reportlab.platypus import Image
 dia = date.today()
 
 cnv = canvas.Canvas(f'Relatorio_Poseid-ON.pdf', pagesize=A4)
 cnv .setTitle(f'Relatorio {dia}')
 cnv.setLineWidth(1)
 cnv.setStrokeColor(colors.black)
-cnv.drawString(30, 800, f'Relatorio Poseid-ON')
+cnv.drawCentredString(280, 800,f'Relatório Poseid-ON')
+imagem = "C:\Users\gabri\OneDrive\Área de Trabalho\Site-main"  # Substitua pelo caminho da sua imagem
+img = Image(imagem, width=200, height=100)  # Especifique a largura e altura desejadas
+
+# Posicione a imagem no PDF
+img.drawOn(c, 550, 770)  # As coordenadas (50, 150) representam a posição da imagem
 z=0
 y = 0
 Ytitulo = 760
