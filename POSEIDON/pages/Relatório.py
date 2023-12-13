@@ -15,7 +15,6 @@ z=0
 y = 0
 Ytitulo = 760
 
-# Função para pegar os valores dos sensores
 def pegarValores(n):
   """
   Função para fazer requisições à API e obter os valores dos sensores.
