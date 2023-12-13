@@ -1,75 +1,89 @@
-import requests
-import streamlit as sl
-import pandas as p
-
-
+import requests  # Importa a biblioteca para lidar com requisições HTTP
+import streamlit as sl  # Importa o Streamlit para construir interfaces web
+import pandas as p  # Importa a biblioteca Pandas para manipulação de dados
 
 
 def pegarValores(n):
-
+  # Define as URLs para buscar dados de diferentes canais Thingspeak com base no parâmetro 'n'
   urlDados = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
   urlClima = f'https://api.thingspeak.com/channels/2244673/feeds.json?api_key=FOKGIHJ79MUZHIFW&results={n}'
-
   urlSim = 'https://api.thingspeak.com/channels/2316505/feeds.json?results=1'
 
+  # Realiza requisições HTTP para obter os dados das URLs especificadas
   respostaDados = requests.get(urlDados)
   respostaClima = requests.get(urlClima)
-
   respostaSim = requests.get(urlSim)
 
+  # Verifica se todas as requisições foram bem-sucedidas
   if respostaDados.status_code == 200 and respostaClima.status_code == 200 and respostaSim.status_code == 200:
+    # Retorna os dados obtidos em formato JSON se todas as requisições forem bem-sucedidas
+    # [medidas, clima, dados simulando outros sistemas Poseid.on]
+    return [respostaDados.json(), respostaClima.json(), respostaSim.json()]
 
-    return [respostaDados.json(), respostaClima.json(), respostaSim.json()] # [medidas, clima, dados simulando outros sistemas Poseid.on]
   else:
-    print('Erro na requisição')
+    # Exibe mensagem de erro se alguma requisição falhar
+    'Erro na requisição'
     return [respostaDados.json(), respostaClima.json(), respostaSim.json()]
 
 
+# Define o título e opções do menu na barra lateral da interface
 sl.sidebar.title('Menu')
+
+# Cria um seletor na barra lateral para escolher entre as opções: 'Verificação', 'Relatório' ou 'Dicas'
 paginaSelecionada = sl.sidebar.selectbox(
-    'Selecione a página a ser exibida', ['Verificação', 'Dicas'])
+    'Selecione a página a ser exibida', ['Verificação', 'Relatório', 'Dicas'])
 
-
+# Se a opção selecionada for 'Verificação', executa o seguinte código
 if paginaSelecionada == 'Verificação':
-  def interface():
-    volumes = None
 
+  # Função responsável pelo visual da página
+  def interface():
+    volumes = None  # Inicializa a variável volumes como nula
+
+    # Obtém o valor máximo dos dados no canal de clima
     max = pegarValores(0)[1]['channel']['last_entry_id']
 
+    # Adiciona um link para importar estilos do Bootstrap para a interface Streamlit
     sl.markdown('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">', unsafe_allow_html=True)
+
     sl.title('Consulte aqui as informações necessárias')
 
+    # Cria um campo de entrada de texto para especificar a quantidade de resultados a serem exibidos
     n = sl.text_input(
-      f'Quantidade de últimos resultados a serem exibidos:')
+        f'Quantidade de últimos resultados a serem exibidos:')
 
     try:
-      n = int(n)
+      n = int(n)  # Converte o valor inserido para um número inteiro
 
+      # Verifica se o número inserido está dentro do alcance dos IDs dos dados disponíveis
       if n > max or n < 1:
         raise Exception('Número fora de alcance')
 
-      volumes = pegarValores(n)[0] # dados do volume do sistema
-      clima = pegarValores(n)[1] # dados do clima no local do sistema durante o envio de dados
+      # Obtém os dados do volume do sistema e dados climáticos com base na quantidade inserida
+      volumes = pegarValores(n)[0]  # dados do volume do sistema
+      # dados do clima no local do sistema durante o envio de dados
+      clima = pegarValores(n)[1]
 
     except:
-      n = 15
+      n = 15  # Define um valor padrão de 15 em caso de erro com oque foi inserido
 
+      # Obtém dados do volume e do clima para exibir os 15 resultados mais recentes
       volumes = pegarValores(n)[0]
       clima = pegarValores(n)[1]
 
+      # Exibe mensagens informando as condições de exibição
       sl.markdown(f'''<h6 style ="height: 0rem; color: #808080; ">Digite um número de 1 a {max}</h6>
-                  <h6 style ="height: 0rem; color: #808080; ">Exibindo os 15 resultados mais recentes</h6>''', unsafe_allow_html=True)
-    if sl.button:
-      
-    # teste condicional de funcionamento
-      if volumes is not None:
+                      <h6 style ="height: 0rem; color: #808080; ">Exibindo os 15 resultados mais recentes</h6>''', unsafe_allow_html=True)
 
+    if sl.button:
+      if volumes is not None:
+        
+        # Criando variáveis para armazenar os dados obtidos
+        
         bdVolumes = [] # banco de dados com valores dos volumese respectivas datas
         bdClima = {'Descrição': {}, 'Categoria': {}, 'Umidade': {}, 'Vento Velocidade': {}, 'Vento Angulo': {}}
-        # , 'Chuva á 1H': {}
         
         bdClimaGrafico = {'Descrição': {}, 'Umidade': {}} # banco de dados para exibição no gráfico
-        # ,'Chuva á 1H': {}
         
         horario = []
         horarioGrafico = []
@@ -83,6 +97,7 @@ if paginaSelecionada == 'Verificação':
           # __Dados dos sensores__
           dataBR = volumes['feeds'][numero]['created_at']
 
+          # especificando caractéres desejados da data
           dia = dataBR[8:10]
           mes = dataBR[5:7]
           ano = dataBR[:4]
@@ -91,6 +106,7 @@ if paginaSelecionada == 'Verificação':
           horario.append(f'{dia}/{mes}/{ano} {hora}')
           horarioGrafico.append(f'{dia}/{mes} {hora}')
 
+          # filtrando dados
           try:
             valorDoVolume = float(volumes['feeds'][numero]['field2'])
           except:
@@ -112,6 +128,7 @@ if paginaSelecionada == 'Verificação':
           anoClima = dataClima[:4]
           horaClima = dataClima[11:19]
 
+          # adicionando dados as variáveis
           horarioClima.append(f'{diaClima}/{mesClima}/{anoClima} {horaClima}')
           horarioClimaGráfico.append(f'{diaClima}/{mesClima} {horaClima}')
 
@@ -143,9 +160,6 @@ if paginaSelecionada == 'Verificação':
 
           bdClimaGrafico['Umidade'][horarioClimaGráfico[numero]] = str(
               clima['feeds'][numero]['field4'])+' %'
-          
-          # bdClimaGrafico['Chuva á 1H'][horarioClimaGráfico[numero]] = str(
-          #     clima['feeds'][numero]['field3'])+' mm'  # deprecated
 
         dadosGerais = {}
         dadosGrafico = {}
@@ -154,12 +168,14 @@ if paginaSelecionada == 'Verificação':
           dadosGerais[str(horario[n])] = bdVolumes[n]
           dadosGrafico[str(horarioGrafico[n])] = bdVolumes[n]
 
+        # rearanjando posição dos valores
         grafico = p.DataFrame({'Data': dadosGrafico.keys(
         ), 'Medição (cm)': dadosGrafico.values()})
 
         with tabGrafico:
           sl.area_chart(grafico, x='Data', y='Medição (cm)')
 
+          # Pegando valor médio dos dados e definindo cor do texto de acordo
           Media = int(round(sum(dadosGerais.values()) / len(dadosGerais)))
 
           r, g, b = int(round(Media*6.7105263157894736842105263157895)
@@ -179,22 +195,22 @@ if paginaSelecionada == 'Verificação':
           sl.table(bdClima)
 
         with tabBueiros:
-          volumesSim = pegarValores(1)[2]  # 1 é um valor arbitrário, pois a função sempre retornará o último valor
+          volumesSim = pegarValores(1)[2]  # 1 no parâmetro é um valor arbitrário, pois a função sempre retornará o último valor
           
           atual1 = float(volumesSim['feeds'][0]['field1'])
           atual2 = float(volumesSim['feeds'][0]['field2'])
           atual3 = float(volumesSim['feeds'][0]['field3'])
           
           atual = {str(atual1): "CAMPINAS", str(atual2): "SÃO PAULO", str(atual3): "ALPHAVILLE", str(round(bdVolumes[-1], 2)): "ACLIMAÇÃO"}
-          # ordemAtual = sorted(atual)
 
           decrescente = []
 
           for chave in atual.keys():
             decrescente.append(float(chave))
 
-          decrescente = sorted(decrescente)
+          decrescente = sorted(decrescente)  # ordenando valores de acordo com o quão cheio cada sistema está
 
+          # Pegando valor médio dos dados e definindo cor do texto de acordo para cada sistema
           r1, g1, b1 = round(decrescente[0] * 6.7105263157894736842105263157895), round(255 - float(decrescente[0]) * 6.7105263157894736842105263157895), 0
           hex1 = "#%02x%02x%02X" % (r1, g1, b1)
 
@@ -216,7 +232,9 @@ if paginaSelecionada == 'Verificação':
             <h6 style="height: 2rem;">{atual[str(decrescente[2])]} em <span style="height: 0rem; color: {hex2}">{decrescente[1]}cm</span> de volume ocupado</h6>
             <h6 style="height: 3rem;">{atual[str(decrescente[3])]} em <span style="height: 0rem; color: {hex1}">{decrescente[0]}cm</span> de volume ocupado</h6>''', unsafe_allow_html=True)  # (arredondamento da soma dos valores / quantidade de valores) - 19(distância onde começa a contagem (mínima))
 
-    ## Clima ##
+    # __Clima__
+    
+    # Pegando informações de um lugar específico
     cidade = sl.text_input(
         'Digite a cidade a qual deseja consultar informações climáticas:')
     codigoDoPais = 'BR'
@@ -232,6 +250,7 @@ if paginaSelecionada == 'Verificação':
 
         ultimoDia = 0
 
+        # Obtendo informações relevantes de cada momento
         for n in range(len(info['list'])):
           dadosClima = info['list'][n]['weather'][0]
 
@@ -250,11 +269,13 @@ if paginaSelecionada == 'Verificação':
           ano = data[0:4]
           hora = data[11:16]
 
+          # Definindo cor do texto de acordo com valor da umidade e/ou chuva
           r, g, b = int(round(probabilidadeDeChuva * 255)), 255 - \
               int(round(probabilidadeDeChuva * 255)), 0
 
           hex = "#%02x%02x%02X" % (r, g, b)
 
+          # Dependendo do clima, recomenda-se ou não a coleta
           def recomendar(var):
             if var == 1:  # se var é 100%
               return '<h6 style="height: 0rem; color: #FF0000">Chuva é certa, coleta não recomendada</h6>'
@@ -282,7 +303,6 @@ if paginaSelecionada == 'Verificação':
           <h5 style="height: 0rem;">Vento: {ventoVelocidade} km/h a {ventoAngulo}º</h5>
           <h6 style="height: 0rem;"></h6>'''
 
-          # aqui fica o card
           sl.markdown(card, unsafe_allow_html=True)
 
       else:
