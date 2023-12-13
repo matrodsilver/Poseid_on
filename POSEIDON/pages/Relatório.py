@@ -15,17 +15,17 @@ z=0
 y = 0
 Ytitulo = 760
 
-
-sl.title('Faça o download do relatório')
-
-
-try:
-  n=int(sl.text_input(f'Quantidade dos últimos resultados a serem exibidos:'))
-except:
-  n = 15
-
+# Função para pegar os valores dos sensores
 def pegarValores(n):
+  """
+  Função para fazer requisições à API e obter os valores dos sensores.
 
+  Parâmetros:
+  - n: int - Quantidade de resultados a serem obtidos.
+
+  Retorna:
+  - list - Lista contendo os dados obtidos da API.
+  """
   urlDados = f'https://api.thingspeak.com/channels/2127654/feeds.json?api_key=MZB0IDFGQR9AQVBW&results={n}'
   urlClima = f'https://api.thingspeak.com/channels/2244673/feeds.json?api_key=FOKGIHJ79MUZHIFW&results={n}'
 
@@ -38,11 +38,16 @@ def pegarValores(n):
     print('Erro na requisição')
     return {}
 
+sl.title('Faça o download do relatório')
+
+try:
+  n=int(sl.text_input(f'Quantidade dos últimos resultados a serem exibidos:'))
+except:
+  n = 15
 
 max = pegarValores(0)[1]['channel']['last_entry_id']
 dados = pegarValores(n)[0]
 clima = pegarValores(n)[1]
-
 
 for aux in range(0, n):
   y = y+20
@@ -88,15 +93,15 @@ for aux in range(0, n):
   print(d)
   print(e)
   print(dataBR)
-  # if aux == 36:
-  # descobrir como fazer uma segunda pagina  ----->, a cada 36 "linhas"
+
 cnv.showPage()
 cnv.save()
+
 with open(f"Relatorio_Poseid-ON.pdf", "rb") as pdf_file:
-    PDFbyte = pdf_file.read()
-    if sl.download_button(
-                          label='Baixe seu pdf aqui!!',
-                          data=PDFbyte,
-                          file_name=f'Relatorio_Poseid-ON.pdf',
-                          mime='text/pdf',):
-      sl.text(f'Download feito com sucesso!!')
+  PDFbyte = pdf_file.read()
+  if sl.download_button(
+              label='Baixe seu pdf aqui!',
+              data=PDFbyte,
+              file_name=f'Relatorio_Poseid-ON.pdf',
+              mime='text/pdf',):
+    sl.text(f'Download feito com sucesso!')
