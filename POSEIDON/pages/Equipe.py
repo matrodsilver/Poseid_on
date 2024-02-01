@@ -29,7 +29,7 @@ sl.markdown(f'''
 sl.markdown(f'''<div class="card">
         <h2><a style="color: #00c4bb" href="https://www.linkedin.com/in/matheus-rodrigues-da-silva-30b568267/">Matheus Silva</a></h2>
         </div>
-        <img class="card-img-top" style="width: 10rem;" src="https://i.imgur.com/YqFw6VS.jpg" alt="Gabriel Sakura">
+        <img class="card-img-top" style="width: 10rem;" src="https://i.imgur.com/fgBIVIO.jpg" alt="Gabriel Sakura">
         <h4 class="card-title" style="color: #00c4bb">Desenvolvedor Geral</h4>
         <h6>Participou em quase todas as etapas do projeto, incluindo o site, a montagem eletrônica, confecção da maquete e idealização</h6>
 ''', unsafe_allow_html=True)
