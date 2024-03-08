@@ -4,7 +4,7 @@ import streamlit as sl
 
 sl.markdown(f'''
             <h1 style="height: 5rem;">Conheça nossa equipe</h1>
-            <h6 style="color: #7d7d7d; height: 3rem;">Links para informações de cada membro em seus respectivos nomes</h6>
+            <h6 style="color: #7d7d7d; height: 3rem;">Links para Linkedin de cada membro em seus respectivos nomes</h6>
     <div class="card">
         <h2><a style="color: #c95b00" href="https://www.linkedin.com/in/gtadashi/">Gabriel Tadashi</a></h2>
         <img class="card-img-top" style="width: 10rem;" src="https://i.imgur.com/auyPEqH.jpg" alt="Gabriel Tadashi">
