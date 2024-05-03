@@ -19,7 +19,9 @@ def pegarValores():
 
 # caso o valor mais atual do banco de dados seja maior que um volume determinado, esta função envia uma notificação de aviso ao pushbullet
 def avisar():
-  if float(pegarValores()['feeds'][0]['field2']) < 30:
+  volume = float(pegarValores()['feeds'][0]['field2'])
+  
+  if volume < 30:
 
     eu = '<token>'  # <token> é substituído pelo valor do token no código
 
@@ -28,7 +30,7 @@ def avisar():
     for usuario in usuarios:
       pbt = Pushbullet(usuario)
       pbt.push_note(
-          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {57- float(pegarValores()["feeds"][0]["field2"])} cm')
+          '⚠️Aviso⚠️', f'⚠ O bueiro【𝟭】de São Paulo atingiu o limite de volume ⚠\nAtualmente em: {57 - volume} cm')
 
 
 # esta função envia os dados do clima atual para o banco de dados do clima
